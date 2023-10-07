@@ -17,7 +17,8 @@ typedef struct s_data
     char    **mat;
     int     height;
     int     width;
-
+    int     x;
+    int     y;
     void*   mlx_in;
     void*   mlx_im;
     void*   mlx_wi;
@@ -26,7 +27,6 @@ typedef struct s_data
     int     win_h;
     //window: width
     int     win_w;
-
     //square dimentions
     int     sq_dim;
     //player position x

@@ -66,7 +66,6 @@ void draw_square(t_data* data, int pos_x, int pos_y, uint32_t clr)
         j = 0;
         while(j < data->sq_dim)
         {
-
             mlx_put_pixel(data->mlx_im, pos_x+j, pos_y+i, clr);
             j++;
         }
@@ -74,11 +73,9 @@ void draw_square(t_data* data, int pos_x, int pos_y, uint32_t clr)
     }
 }
 
-
-void draw(void *dt)
+void draw_map(t_data *data)
 {
-    t_data* data;
-    data = (t_data*)dt;
+
     int i;
     int j;
     i = 0;
@@ -89,19 +86,77 @@ void draw(void *dt)
         while (data->mat[i][j])
         {
             if(data->mat[i][j] == '1')
-                draw_square(data, j, i, 0x42f5ad);
-            else if(data->mat[i][j] == '0')
-                draw_square(data, j, i, 0xffffff);
+                draw_square(data, j, i, 0x00FF0000ff);
+            else
+                draw_square(data, j, i, 0x00ffffffff);
             j++;
         }
         i++;
     }
+}
+
+void draw_player(t_data* data)
+{
+        mlx_put_pixel(data->mlx_im,data->ppos_x ,data->ppos_y , 0x00000000ff);
+        mlx_put_pixel(data->mlx_im,data->ppos_x+1 ,data->ppos_y , 0x00000000ff);
+        mlx_put_pixel(data->mlx_im,data->ppos_x ,data->ppos_y+1 , 0x00000000ff);
+        mlx_put_pixel(data->mlx_im,data->ppos_x+1 ,data->ppos_y+1 , 0x00000000ff);
 
 }
+int check_mov(t_data *param, int k, int l)
+{
+	if (param->mat[k][l] == '1')
+		return (0);
+	return (1);
+}
+
+void key_hook(t_data *pr)
+{
+	if (mlx_is_key_down(pr->mlx_in, MLX_KEY_LEFT))
+		pr->p_angle -= (M_PI / 180) * 3;
+	if (mlx_is_key_down(pr->mlx_in, MLX_KEY_RIGHT))
+		pr->p_angle += (M_PI / 180) * 3;
+	if (mlx_is_key_down(pr->mlx_in, MLX_KEY_W) && check_mov(pr, (int)(pr->ppos_y - 4) / 50, (int)(pr->ppos_x) / 50))
+	{
+		pr->ppos_x += cosf(pr->p_angle);
+		pr->ppos_y += sin(pr->p_angle);
+	}
+	else if (mlx_is_key_down(pr->mlx_in, MLX_KEY_S) && check_mov(pr, (int)(pr->ppos_y + 4) / 50, (int)(pr->ppos_x) / 50))
+	{
+		pr->ppos_x -= cosf(pr->p_angle);
+		pr->ppos_y -= sinf(pr->p_angle);
+	}
+	else if (mlx_is_key_down(pr->mlx_in, MLX_KEY_A) && check_mov(pr, (int)(pr->ppos_y) / 50, (int)(pr->ppos_x - 4) / 50))
+	{
+		pr->ppos_x -= cosf(pr->p_angle + 90 * (M_PI / 180));
+		pr->ppos_y -= sinf(pr->p_angle + 90 * (M_PI / 180));
+	}
+	else if (mlx_is_key_down(pr->mlx_in, MLX_KEY_D) && check_mov(pr, (int)(pr->ppos_y) / 50, (int)(pr->ppos_x + 4) / 50))
+	{
+		pr->ppos_x += cosf(pr->p_angle + 90 * (M_PI / 180));
+		pr->ppos_y += sinf(pr->p_angle + 90 * (M_PI / 180));
+	}
+	else if (mlx_is_key_down(pr->mlx_in, MLX_KEY_Q))
+		exit(1);
+}
+
+void draw(void *dt)
+{    
+    t_data* data;
+
+    data = (t_data*)dt; 
+    draw_map(data);
+    draw_player(data);
+    key_hook(data);
+
+}
+
 void vue_angle(t_data *param)
 {
 	int y = 0;
 	int x;
+
+    param->p_angle = 1;
 	while (param->mat[y] != NULL)
 	{
 		x = 0;
@@ -115,6 +170,12 @@ void vue_angle(t_data *param)
 				param->p_angle = M_PI;
 			else if(param->mat[y][x] == 'W')
 				param->p_angle = M_PI_2 * 3;
+            if(param->p_angle != 1)
+            {
+                param->ppos_y = (y * param->sq_dim) + (param->sq_dim / 2);
+                param->ppos_x = (x * param->sq_dim) + (param->sq_dim / 2);
+                return ;
+            }
 			x++;
 		}
 		y++;
@@ -125,14 +186,15 @@ int main(int ac, char **av)
 {
     t_data data;
 
+    
+    data.win_w = 1900;
+    data.win_h = 1000;
+    data.sq_dim = 50;
     if(ac!= 2)
         return 1;
 	lire_map(&data, av[1]);
     len_mapp(&data);
     vue_angle(&data);
-    data.win_w = 1900;
-    data.win_h = 1000;
-    data.sq_dim = 50;
     data.mlx_in = mlx_init(1900, 1000, "cub3D", 0);
 	data.mlx_im = mlx_new_image(data.mlx_in, 1900, 1000);
 

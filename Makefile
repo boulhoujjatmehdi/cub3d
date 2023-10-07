@@ -15,7 +15,10 @@ NAME	= CUB3D
 CC		= cc
 FLAGS	= -Wall -Wextra -Werror -fsanitize=address -g
 RM		= rm -rf
-SRC		= get_next_line_utils.c  mehdiCub3d.c ft_printf.c get_next_line.c
+SRC		= 	get_next_line_utils.c \
+			mehdiCub3d.c\
+			ft_printf.c\
+			get_next_line.c
 # 
 IMLX	     = -I MLX42/include
 MLX        = MLX42/build/libmlx42.a
