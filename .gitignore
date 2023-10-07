@@ -1,0 +1,5 @@
+CUB3D
+test.c
+*.dSYM
+*.o
+main_temp.c
