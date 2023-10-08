@@ -51,6 +51,32 @@ void len_mapp(t_data *data)
 		data->height++;
 	}
 }
+void draw_line(t_data* data, float x, float y, float end_x, float end_y)
+{
+	int steps;
+	float x_i;
+	float y_i;
+
+	steps = fabs(x - end_x);
+	if(steps < fabs(y - end_y))
+		steps = fabs(y - end_y);
+	printf("steps === (%d) , x = (%f), endx = (%f)\n", steps, x , end_x);
+	x_i = steps/ end_x;
+	y_i = steps/ end_y;
+	int i;
+
+	i = 0;
+	// while (i < steps)
+	// {
+	// 	x += x_i;
+	// 	y += y_i;
+	// 	printf("--%d x = (%f) y = (%f)\n",i, x, y );
+	// 	mlx_put_pixel(data->mlx_im, x, y, 0x00000000ff);
+	// 	printf("%d\n",i);
+	// 	i++;
+	// }//TODO: UNCOMMENT THIS PART OF CODE.
+	
+}
 
 void draw_square(t_data* data, int pos_x, int pos_y, uint32_t clr)
 {
@@ -87,7 +113,7 @@ void draw_map(t_data *data)
         {
             if(data->mat[i][j] == '1')
                 draw_square(data, j, i, 0x00FF0000ff);
-            else
+            else if(data->mat[i][j] != '\n')
                 draw_square(data, j, i, 0x00ffffffff);
             j++;
         }
@@ -103,38 +129,62 @@ void draw_player(t_data* data)
         mlx_put_pixel(data->mlx_im,data->ppos_x+1 ,data->ppos_y+1 , 0x00000000ff);
 
 }
-int check_mov(t_data *param, int k, int l)
+int check_mov(t_data *param, double k, double l)
 {
-	if (param->mat[k][l] == '1')
+	// return 1; //TODO: remove this line
+
+	// printf("-------------------%d -- %d\n" , (int)(l/50), (int)(k/50));
+	// printf("-------------------%f -- %f\n", l , k);
+	if (param->mat[(int)(k/50)][(int)(l/50)] == '1')
+	{
+		// printf("was here\n");
 		return (0);
+	}
 	return (1);
 }
 
 void key_hook(t_data *pr)
 {
+	float	tmpx;
+	float	tmpy;
+
 	if (mlx_is_key_down(pr->mlx_in, MLX_KEY_LEFT))
-		pr->p_angle -= (M_PI / 180) * 3;
-	if (mlx_is_key_down(pr->mlx_in, MLX_KEY_RIGHT))
-		pr->p_angle += (M_PI / 180) * 3;
-	if (mlx_is_key_down(pr->mlx_in, MLX_KEY_W) && check_mov(pr, (int)(pr->ppos_y - 4) / 50, (int)(pr->ppos_x) / 50))
+	{
+		pr->p_angle -= (M_PI / 180) * pr->rotation_angle;
+	}
+	else if (mlx_is_key_down(pr->mlx_in, MLX_KEY_RIGHT))
+	{
+		pr->p_angle += (M_PI / 180) * pr->rotation_angle;
+	}
+	tmpx = cosf(pr->p_angle);
+	tmpy = sinf(pr->p_angle);
+
+	if (mlx_is_key_down(pr->mlx_in, MLX_KEY_W) && check_mov(pr, (pr->ppos_y + tmpy) , (pr->ppos_x + tmpx) ))
 	{
 		pr->ppos_x += cosf(pr->p_angle);
-		pr->ppos_y += sin(pr->p_angle);
+		pr->ppos_y += sinf(pr->p_angle);
+		// printf("W = %f - %f\n", pr->ppos_x, pr->ppos_y);
+
 	}
-	else if (mlx_is_key_down(pr->mlx_in, MLX_KEY_S) && check_mov(pr, (int)(pr->ppos_y + 4) / 50, (int)(pr->ppos_x) / 50))
+	else if (mlx_is_key_down(pr->mlx_in, MLX_KEY_S) && check_mov(pr, (pr->ppos_y-tmpy)  , (pr->ppos_x - tmpx) ))
 	{
 		pr->ppos_x -= cosf(pr->p_angle);
 		pr->ppos_y -= sinf(pr->p_angle);
+		// printf("S = %f - %f\n", pr->ppos_x, pr->ppos_y);
 	}
-	else if (mlx_is_key_down(pr->mlx_in, MLX_KEY_A) && check_mov(pr, (int)(pr->ppos_y) / 50, (int)(pr->ppos_x - 4) / 50))
+	tmpx = cosf(pr->p_angle + 90 * (M_PI / 180));
+	tmpy = sinf(pr->p_angle + 90 * (M_PI / 180));
+	if (mlx_is_key_down(pr->mlx_in, MLX_KEY_A) && check_mov(pr, (pr->ppos_y - tmpy) , (pr->ppos_x - tmpx) ))
 	{
 		pr->ppos_x -= cosf(pr->p_angle + 90 * (M_PI / 180));
 		pr->ppos_y -= sinf(pr->p_angle + 90 * (M_PI / 180));
+		// printf("A = %f - %f\n", pr->ppos_x, pr->ppos_y);
 	}
-	else if (mlx_is_key_down(pr->mlx_in, MLX_KEY_D) && check_mov(pr, (int)(pr->ppos_y) / 50, (int)(pr->ppos_x + 4) / 50))
+	else if (mlx_is_key_down(pr->mlx_in, MLX_KEY_D) && check_mov(pr, (pr->ppos_y + tmpy) , roundf(pr->ppos_x + tmpx) ))
 	{
 		pr->ppos_x += cosf(pr->p_angle + 90 * (M_PI / 180));
 		pr->ppos_y += sinf(pr->p_angle + 90 * (M_PI / 180));
+		// printf("D = %f - %f\n", pr->ppos_x, pr->ppos_y);
 	}
 	else if (mlx_is_key_down(pr->mlx_in, MLX_KEY_Q))
 		exit(1);
@@ -148,6 +198,7 @@ void draw(void *dt)
     draw_map(data);
     draw_player(data);
     key_hook(data);
+	draw_line(data, data->ppos_x, data->ppos_y, (data->ppos_x+cosf(data->p_angle))+20, (data->ppos_y+cosf(data->p_angle))+20);
 
 }
 
@@ -163,13 +214,13 @@ void vue_angle(t_data *param)
 		while (param->mat[y][x] != '\0')
 		{
 			if(param->mat[y][x] == 'N')
-				param->p_angle = 0;
-			else if(param->mat[y][x] == 'E')
-				param->p_angle = M_PI_2;
-			else if(param->mat[y][x] == 'S')
-				param->p_angle = M_PI;
-			else if(param->mat[y][x] == 'W')
 				param->p_angle = M_PI_2 * 3;
+			else if(param->mat[y][x] == 'E')
+				param->p_angle = 0;
+			else if(param->mat[y][x] == 'S')
+				param->p_angle = M_PI_2;
+			else if(param->mat[y][x] == 'W')
+				param->p_angle = M_PI;
             if(param->p_angle != 1)
             {
                 param->ppos_y = (y * param->sq_dim) + (param->sq_dim / 2);
@@ -181,17 +232,21 @@ void vue_angle(t_data *param)
 		y++;
 	}
 }
+void initialize_data(t_data* data)
+{
+	data->win_w = 1900;
+    data->win_h = 1000;
+    data->sq_dim = 50;
+	data->rotation_angle = 3;
+}
 
 int main(int ac, char **av)
 {
     t_data data;
 
-    
-    data.win_w = 1900;
-    data.win_h = 1000;
-    data.sq_dim = 50;
     if(ac!= 2)
         return 1;
+	initialize_data(&data);
 	lire_map(&data, av[1]);
     len_mapp(&data);
     vue_angle(&data);

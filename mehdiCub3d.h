@@ -29,10 +29,12 @@ typedef struct s_data
     int     win_w;
     //square dimentions
     int     sq_dim;
+    //player rotation angle
+    int     rotation_angle;
     //player position x
-    int     ppos_x;
+    float     ppos_x;
     //player position y
-    int     ppos_y;
+    float     ppos_y;
     //player view angle
     double     p_angle;
 
