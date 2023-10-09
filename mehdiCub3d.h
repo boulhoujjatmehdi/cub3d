@@ -17,12 +17,12 @@ typedef struct s_data
     char    **mat;
     int     height;
     int     width;
-    int     x;//TODO: CHECK IF NEEDED
-    int     y;//TODO: CHECK IF NEEDED
     void*   mlx_in;
     void*   mlx_im;
     void*   mlx_wi;
 
+    int     x;//TODO: CHECK IF NEEDED
+    int     y;//TODO: CHECK IF NEEDED
     //window: height
     int     win_h;
     //window: width

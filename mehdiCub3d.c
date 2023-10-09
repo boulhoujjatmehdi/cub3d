@@ -186,22 +186,33 @@ void key_hook(t_data *pr)
 	else if (mlx_is_key_down(pr->mlx_in, MLX_KEY_Q))
 		exit(1);
 }
+int found_wall(t_data* data, float left_angle)
+{
+	// int i;
+	float delta_x;
+	float delta_y;
+	// float
+
+	delta_x = data->sq_dim / tan(left_angle);
+	delta_y = data->sq_dim * tan(left_angle) < 1200 ? data->sq_dim * tan(left_angle): 0 ;
+	while(1)
+	{
+		break;
+	}
+
+	printf("deltax = %f -- deltay = %f left_angle = (%f) (%f)\n", delta_x, delta_y,left_angle, tan(left_angle) );
+	return 0;
+}
 void ray_casting(t_data *data)
 {
 	int i;
 	float left_angle;
 	float increase;
 
-
-	i = 1;
 	increase = fabs((float)data->fov/ (float)data->num_rays);
 	left_angle = data->p_angle - (data->fov/2);
-
-	// while(1)
-	// {
-	// 	if(data->ppos_x + cos(left_angle)*i == )
-	// }
-	// 	draw_line(data, data->ppos_x, data->ppos_y, data->ppos_x + cos(left_angle) * 200, data->ppos_y + sin(left_angle) * 200);
+	found_wall(data, left_angle);
+	i = 1;
 	while(i < data->num_rays)
 	{
 		draw_line(data, data->ppos_x, data->ppos_y, data->ppos_x + cos(left_angle) * 200, data->ppos_y + sin(left_angle) * 200);
