@@ -17,8 +17,8 @@ typedef struct s_data
     char    **mat;
     int     height;
     int     width;
-    int     x;
-    int     y;
+    int     x;//TODO: CHECK IF NEEDED
+    int     y;//TODO: CHECK IF NEEDED
     void*   mlx_in;
     void*   mlx_im;
     void*   mlx_wi;
@@ -37,6 +37,15 @@ typedef struct s_data
     float     ppos_y;
     //player view angle
     double     p_angle;
+
+    //raycasting
+    //field of view
+    float fov;
+    //number of rays
+    int num_rays;
+
+
+
 
 }t_data;
 

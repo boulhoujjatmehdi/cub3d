@@ -9,7 +9,7 @@ void lire_map(t_data *data, char *av)
 
 	j = 0;
 	i = 0;
-	fd = open(av, O_RDONLY);//TODO: PROTECT av
+	fd = open(av, O_RDONLY);//TODO: PROTECT av 
 	while (1)
 	{
 		c = get_next_line(fd);
@@ -54,28 +54,28 @@ void len_mapp(t_data *data)
 void draw_line(t_data* data, float x, float y, float end_x, float end_y)
 {
 	int steps;
-	float x_i;
-	float y_i;
-
-	steps = fabs(x - end_x);
-	if(steps < fabs(y - end_y))
-		steps = fabs(y - end_y);
-	printf("steps === (%d) , x = (%f), endx = (%f)\n", steps, x , end_x);
-	x_i = steps/ end_x;
-	y_i = steps/ end_y;
+	double x_i;
+	double y_i;
 	int i;
 
+	x_i = end_x - x;
+	y_i = end_y - y;
+
+	steps = abs((int)x_i);
+	if(fabs(x_i) < fabs(y_i))
+		steps = abs((int)y_i);
+	x_i = x_i/(float)steps;
+	y_i = y_i/(float)steps;
+
 	i = 0;
-	// while (i < steps)
-	// {
-	// 	x += x_i;
-	// 	y += y_i;
-	// 	printf("--%d x = (%f) y = (%f)\n",i, x, y );
-	// 	mlx_put_pixel(data->mlx_im, x, y, 0x00000000ff);
-	// 	printf("%d\n",i);
-	// 	i++;
-	// }//TODO: UNCOMMENT THIS PART OF CODE.
-	
+	while (i < abs(steps))
+	{
+
+		x += x_i;
+		y += y_i;
+		mlx_put_pixel(data->mlx_im, x, y, 0x00000000ff);
+		i++;
+	}
 }
 
 void draw_square(t_data* data, int pos_x, int pos_y, uint32_t clr)
@@ -124,9 +124,6 @@ void draw_map(t_data *data)
 void draw_player(t_data* data)
 {
         mlx_put_pixel(data->mlx_im,data->ppos_x ,data->ppos_y , 0x00000000ff);
-        mlx_put_pixel(data->mlx_im,data->ppos_x+1 ,data->ppos_y , 0x00000000ff);
-        mlx_put_pixel(data->mlx_im,data->ppos_x ,data->ppos_y+1 , 0x00000000ff);
-        mlx_put_pixel(data->mlx_im,data->ppos_x+1 ,data->ppos_y+1 , 0x00000000ff);
 
 }
 int check_mov(t_data *param, double k, double l)
@@ -189,6 +186,29 @@ void key_hook(t_data *pr)
 	else if (mlx_is_key_down(pr->mlx_in, MLX_KEY_Q))
 		exit(1);
 }
+void ray_casting(t_data *data)
+{
+	int i;
+	float left_angle;
+	float increase;
+
+
+	i = 1;
+	increase = fabs((float)data->fov/ (float)data->num_rays);
+	left_angle = data->p_angle - (data->fov/2);
+
+	// while(1)
+	// {
+	// 	if(data->ppos_x + cos(left_angle)*i == )
+	// }
+	// 	draw_line(data, data->ppos_x, data->ppos_y, data->ppos_x + cos(left_angle) * 200, data->ppos_y + sin(left_angle) * 200);
+	while(i < data->num_rays)
+	{
+		draw_line(data, data->ppos_x, data->ppos_y, data->ppos_x + cos(left_angle) * 200, data->ppos_y + sin(left_angle) * 200);
+		i++;
+		left_angle += increase;
+	}
+}
 
 void draw(void *dt)
 {    
@@ -196,9 +216,11 @@ void draw(void *dt)
 
     data = (t_data*)dt; 
     draw_map(data);
-    draw_player(data);
     key_hook(data);
-	draw_line(data, data->ppos_x, data->ppos_y, (data->ppos_x+cosf(data->p_angle))+20, (data->ppos_y+cosf(data->p_angle))+20);
+    draw_player(data);
+	// printf("cos  = %f , sin = %f\n", cosf(data->p_angle), sinf(data->p_angle));
+	ray_casting(data);
+	// draw_line(data, data->ppos_x, data->ppos_y, (data->ppos_x+cosf(data->p_angle)*15), (data->ppos_y+sinf(data->p_angle)*15));
 
 }
 
@@ -238,6 +260,8 @@ void initialize_data(t_data* data)
     data->win_h = 1000;
     data->sq_dim = 50;
 	data->rotation_angle = 3;
+	data->num_rays = 320;
+	data->fov = 60*(M_PI / 180);
 }
 
 int main(int ac, char **av)
