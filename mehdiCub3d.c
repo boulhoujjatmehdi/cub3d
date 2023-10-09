@@ -208,6 +208,7 @@ void ray_casting(t_data *data)
 		i++;
 		left_angle += increase;
 	}
+	
 }
 
 void draw(void *dt)
