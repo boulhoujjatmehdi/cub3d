@@ -186,21 +186,36 @@ void key_hook(t_data *pr)
 	else if (mlx_is_key_down(pr->mlx_in, MLX_KEY_Q))
 		exit(1);
 }
-int found_wall(t_data* data, float left_angle)
+void normalize_angle(t_data* data)
+{
+	int tmp;
+	tmp = data->p_angle / (2 * M_PI);
+	data->p_angle = data->p_angle - (tmp * 2 * M_PI);
+	if(data->p_angle < 0)
+		data->p_angle += 2 *M_PI;
+	// printf("p_angle (%f) - tmp(%d) == tmp2(%f)\n",data->p_angle , tmp ,  data->p_angle);
+
+}
+void horizontal(t_data* data, double ray_angle)
+{
+	//TODO: GET THE FIRST INTERSECTION BY (X AND Y)
+	//TODO: GET THE YSTEP AND XSTEP IN HORIZONTAL STEPS
+	(void)data;
+	int x_inters;
+	int y_inters;
+
+	y_inters = floor(data->ppos_y / data->sq_dim) * data->sq_dim;
+	x_inters =(data->ppos_y - y_inters)/ tanf(ray_angle);
+	printf("yinters = (%d) xinters = (%d)\n", y_inters, x_inters);//TODO WAS HERE
+
+}
+int found_wall(t_data* data, float ray_angle)
 {
 	// int i;
-	float delta_x;
-	float delta_y;
-	// float
 
-	delta_x = data->sq_dim / tan(left_angle);
-	delta_y = data->sq_dim * tan(left_angle) < 1200 ? data->sq_dim * tan(left_angle): 0 ;
-	while(1)
-	{
-		break;
-	}
+	horizontal(data, ray_angle);
+	(void)ray_angle;
 
-	printf("deltax = %f -- deltay = %f left_angle = (%f) (%f)\n", delta_x, delta_y,left_angle, tan(left_angle) );
 	return 0;
 }
 void ray_casting(t_data *data)
@@ -210,6 +225,7 @@ void ray_casting(t_data *data)
 	float increase;
 
 	increase = fabs((float)data->fov/ (float)data->num_rays);
+	normalize_angle(data);
 	left_angle = data->p_angle - (data->fov/2);
 	found_wall(data, left_angle);
 	i = 1;
