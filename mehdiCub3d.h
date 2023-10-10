@@ -44,9 +44,6 @@ typedef struct s_data
     //number of rays
     int num_rays;
 
-
-
-
 }t_data;
 
 
