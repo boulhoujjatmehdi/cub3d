@@ -12,6 +12,19 @@
 
 char	*get_next_line(int fd);
 
+typedef struct s_wall
+{
+    int horz_found_wall;
+    float horz_distance;
+    int horz_x;
+    int horz_y;
+
+    int vert_found_wall;
+    float vert_distance;
+    int vert_x;
+    int vert_y;
+} t_wall;
+
 typedef struct s_data
 {
     char    **mat;
