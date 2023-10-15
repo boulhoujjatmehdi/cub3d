@@ -14,12 +14,12 @@ char	*get_next_line(int fd);
 
 typedef struct s_wall
 {
-    int horz_found_wall;
+    float horz_found_wall;
     float horz_distance;
     int horz_x;
     int horz_y;
 
-    int vert_found_wall;
+    float vert_found_wall;
     float vert_distance;
     int vert_x;
     int vert_y;
@@ -34,8 +34,6 @@ typedef struct s_data
     void*   mlx_im;
     void*   mlx_wi;
 
-    int     x;//TODO: CHECK IF NEEDED
-    int     y;//TODO: CHECK IF NEEDED
     //window: height
     int     win_h;
     //window: width
@@ -56,6 +54,8 @@ typedef struct s_data
     float fov;
     //number of rays
     int num_rays;
+    //minimap scale
+    float mini_scale;
 
 }t_data;
 

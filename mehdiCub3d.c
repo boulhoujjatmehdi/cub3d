@@ -84,7 +84,7 @@ void draw_square(t_data* data, int pos_x, int pos_y, uint32_t clr)
     int j;
 
     i = 0;
-    pos_x *= data->sq_dim;
+    pos_x *= data->sq_dim ;
     pos_y *= data->sq_dim;
 
     while(i < data->sq_dim)
@@ -124,15 +124,19 @@ void draw_map(t_data *data)
 void draw_player(t_data* data)
 {
         mlx_put_pixel(data->mlx_im,data->ppos_x ,data->ppos_y , 0x00000000ff);
-
 }
 int check_wall_at(t_data *param, double k, double l)
 {
-	printf("x = %d , y = %d char = (%c) \n", (int)(k/50) , (int)(l/50) , param->mat[(int)(k/50)][(int)(l/50)]);
-	if (param->mat[(int)(k/50)][(int)(l/50)] == '1')
+	// printf("x = %d , y = %d char = (%c) \n", (int)(k/param->sq_dim) , (int)(l/param->sq_dim) , param->mat[(int)(k/param->sq_dim)][(int)(l/param->sq_dim)]);
+	// puts("-------------------------------------------------------------");
+	// printf("x = %d , y = %d , (%.1f, %.1f)\n", (int)(k/param->sq_dim) , (int)(l/param->sq_dim), k , l);
+	// puts("was here1");
+	if (param->mat[(int)(k/param->sq_dim)][(int)(l/param->sq_dim)] == '1')
 	{
+		// puts("was here2");
 		return (0);
 	}
+	// puts("was here3");
 	return (1);
 }
 
@@ -140,7 +144,6 @@ void key_hook(t_data *pr)
 {
 	float	tmpx;
 	float	tmpy;
-
 	if (mlx_is_key_down(pr->mlx_in, MLX_KEY_LEFT))
 	{
 		pr->p_angle -= (M_PI / 180) * pr->rotation_angle;
@@ -182,20 +185,19 @@ void key_hook(t_data *pr)
 	else if (mlx_is_key_down(pr->mlx_in, MLX_KEY_Q))
 		exit(1);
 }
-void normalize_angle(t_data* data)
+void normalize_angle(double *angle)
 {
 	int tmp;
-	tmp = data->p_angle / (2 * M_PI);
-	data->p_angle = data->p_angle - (tmp * 2 * M_PI);
-	if(data->p_angle < 0)
-		data->p_angle += 2 *M_PI;
+	tmp = *angle / (2 * M_PI);
+	*angle = *angle - (tmp * 2 * M_PI);
+	if(*angle < 0)
+		*angle += 2 *M_PI;
 
 	// printf("p_angle (%f) - tmp(%d) == tmp2(%f)\n",data->p_angle , tmp ,  data->p_angle);
 
 }
 void horizontal(t_data* data, double ray_angle, t_wall* wall)
 {
-	(void)wall;
 	float x_inters;
 	float y_inters;
 	float x_steps;
@@ -216,9 +218,6 @@ void horizontal(t_data* data, double ray_angle, t_wall* wall)
 	x_inters = (y_inters - data->ppos_y)/ tan(ray_angle);
 	x_inters += data->ppos_x;
 
-	// if(facing_up)
-	// 	x_inters *= -1;
-
 	//calculate the increment x_step and y_step
 	y_steps = data->sq_dim;
 	if(facing_up)
@@ -229,29 +228,21 @@ void horizontal(t_data* data, double ray_angle, t_wall* wall)
 		x_steps *= -1;
 
 	//--------------------------
-
-
-
-
-	int next_touch_x;
-	int next_touch_y;
+	float next_touch_x;
+	float next_touch_y;
 	next_touch_x = x_inters;
 	next_touch_y = y_inters;
 	
-	// foundwall = false;
-
-
 	wall->horz_x = data->ppos_x;
 	wall->horz_y = data->ppos_y;
+			wall->horz_distance = INT32_MAX;
 	while(next_touch_x >= 0 && next_touch_x <= data->win_w && next_touch_y >=0 && next_touch_y <= data->win_h)
 	{
-		if(facing_up)
-			next_touch_y --;
-		
-		if(check_wall_at(data, next_touch_y, next_touch_x) == false)
+		float check_x = next_touch_x;
+		float check_y = next_touch_y + (facing_up? -1: 0);
+
+		if(check_wall_at(data, check_y, check_x) == false)
 		{
-			if(facing_up)
-				next_touch_y ++;
 			wall->horz_found_wall = true;
 			wall->horz_x = next_touch_x;
 			wall->horz_y  = next_touch_y;
@@ -262,32 +253,15 @@ void horizontal(t_data* data, double ray_angle, t_wall* wall)
 		{
 			next_touch_x += x_steps;
 			next_touch_y += y_steps;
-			if(facing_up)
-				next_touch_y --;
 		}
 	}
-	// if(foundwall == true)
-	// {
-	// 	wall->horz_found_wall = true;
-	// 	wall->horz_x = wallhitx;
-	// 	wall->horz_y = wallhity;
-	// 	wall->horz_distance = sqrt((wallhitx - data->ppos_x) * (wallhitx - data->ppos_x)+(wallhity - data->ppos_y)* (wallhity - data->ppos_y));
-
-	// }
-	// else
-	// {
-	// 	wall->horz_x = data->ppos_x;
-	// 	wall->horz_y = data->ppos_y;
-	// }
-
 }
-void vertical(t_data* data, double ray_angle, t_wall* wall)
+void verticall(t_data* data, double ray_angle, t_wall* wall)
 {
-	(void)wall;
-	int x_inters;
-	int y_inters;
-	int x_steps;
-	int y_steps;
+	float x_inters;
+	float y_inters;
+	float x_steps;
+	float y_steps;
 	int facing_up;
 	int facing_left;
 
@@ -296,51 +270,50 @@ void vertical(t_data* data, double ray_angle, t_wall* wall)
 		facing_left = 0;
 	if(ray_angle >= 0 && ray_angle < M_PI)
 		facing_up = 0;
-	//find the x-cordinate of the closest vertical grid intersection
+
+	//finding y intersection 
 	x_inters = floor(data->ppos_x / data->sq_dim) * data->sq_dim;
 	if(!facing_left)
 		x_inters += data->sq_dim;
-	//find the y  -cordinate of the closest vertical grid intersection
-	y_inters = (data->ppos_x - x_inters) * tanf(ray_angle);
-	y_inters += data->ppos_y;
-	// if(facing_up)
-	// 	x_inters *= -1;
-	// else
-	// 	y_inters += data->sq_dim;
 
+	//finding x intersection
+	y_inters =data->ppos_y + (x_inters - data->ppos_x) * tan(ray_angle);
+
+
+	//calculate the increment x_step and y_step
 	x_steps = data->sq_dim;
 	if(facing_left)
-	{
 		x_steps *= -1;
-	}
-
 
 	y_steps = data->sq_dim * tan(ray_angle);
-	if((facing_up && x_steps > 0)||(!facing_up && x_steps < 0))
-		x_steps *= -1;
+	if((facing_up && y_steps > 0)||(!facing_up && y_steps < 0))
+		y_steps *= -1;
 
-	int next_touch_x;
-	int next_touch_y;
+	//--------------------------
 
-	int wallhitx;
-	int wallhity;
-	int foundwall;
 
+
+
+	float next_touch_x;
+	float next_touch_y;
 	next_touch_x = x_inters;
 	next_touch_y = y_inters;
 	
-	if(facing_left)
-		next_touch_x --;
-	wallhity = wallhitx = 0;
-	foundwall = false;
+	wall->vert_x = data->ppos_x;
+	wall->vert_y = data->ppos_y;
+
+			wall->vert_distance = INT32_MAX;
 	while(next_touch_x >= 0 && next_touch_x <= data->win_w && next_touch_y >=0 && next_touch_y <= data->win_h)
 	{
-		// printf("x = (%d) y = (%d)\n", next_touch_x, next_touch_y);
-		if(check_wall_at(data, next_touch_x, next_touch_x))
+
+		float check_x = next_touch_x + (facing_left? -1:0);
+		float check_y = next_touch_y;
+		if(check_wall_at(data, check_y, check_x) == false)
 		{
-			foundwall = true;
-			wallhitx = next_touch_x;
-			wallhity = next_touch_y;
+			wall->vert_found_wall = true;
+			wall->vert_x = next_touch_x;
+			wall->vert_y  = next_touch_y;
+			wall->vert_distance = sqrt((wall->vert_x - data->ppos_x) * (wall->vert_x - data->ppos_x)+(wall->vert_y - data->ppos_y)* (wall->vert_y - data->ppos_y));
 			break;
 		}
 		else
@@ -349,77 +322,109 @@ void vertical(t_data* data, double ray_angle, t_wall* wall)
 			next_touch_y += y_steps;
 		}
 	}
-	if(foundwall == true)
+}
+void draw_strip(t_data* data, int x, float wall_hight)
+{
+	int i = 0;
+
+	int begin  = (data->win_h/2)- (wall_hight/2);
+	while(i < data->win_h)
+		mlx_put_pixel(data->mlx_im, x, i++, 0x00000000ff);
+	i = 0;
+	while(i < wall_hight)
 	{
-		puts("was here");
-		wall->vert_found_wall = true;
-		wall->vert_x = wallhitx;
-		wall->vert_y = wallhity;
-		wall->vert_distance = sqrt((wallhitx - data->ppos_x) * (wallhitx - data->ppos_x)+(wallhity - data->ppos_y)*(wallhity - data->ppos_y));
-	}
-	else
-	{
-		wall->vert_x = data->ppos_x;
-		wall->vert_y = data->ppos_y;
-		
+		mlx_put_pixel(data->mlx_im, x, begin, 0x00ffffffff);
+		begin ++;
+		i++;
 	}
 }
-// int found_wall(t_data* data, float ray_angle)
-// {
-// 	// int i;
-// 	horizontal(data, ray_angle);
-// 	horizontal(data, ray_angle+(fabs((float)data->fov/ (float)data->num_rays)));
-// 	(void)ray_angle;
-
-// 	return 0;
-// }
 void ray_casting(t_data *data)
 {
 	int i;
-	float left_angle;
+	double left_angle;
 	float increase;
 	t_wall wall;
 
-	wall.horz_found_wall = wall.vert_found_wall = false;
 	increase = fabs((float)data->fov/ (float)data->num_rays);
-	normalize_angle(data);
 	left_angle = data->p_angle - (data->fov/2);
-	left_angle = data->p_angle; 
-	// found_wall(data, left_angle);
-	i = 1;
-	// printf("--------------------------\n");
-	// while(i < data->num_rays)
-	// {
-		horizontal(data, data->p_angle, &wall);
-		draw_line(data, data->ppos_x, data->ppos_y, wall.horz_x, wall.horz_y, 0x0000ff00ff);
-		// vertical(data, data->p_angle, &wall);
-		// printf("distance = (%f)\n", wall.horz_distance);
-		// if(!wall.vert_found_wall)
-		// 	puts("vert not found");
-		// if(wall.horz_found_wall && wall.vert_found_wall)
-		// 	puts("clear");
-		// if(wall.horz_distance <= wall.vert_distance)
-		// 	printf("up down\n");
-		// else
-		// 	printf("sides\n");
-		// draw_line(data, data->ppos_x, data->ppos_y, wall.horz_x, wall.horz_y, 0x00ff0000ff);
-		// draw_line(data, data->ppos_x, data->ppos_y, wall.vert_x, wall.vert_y);
-		// i++;
-		// left_angle += increase;
-	// }
+	i = 0;
+	while(i < data->num_rays)
+	{
+		normalize_angle(&left_angle);//WHY 
+		wall.horz_found_wall = wall.vert_found_wall = false;
+		horizontal(data, left_angle, &wall);
+		verticall(data, left_angle, &wall);
+
+		if(wall.horz_distance < wall.vert_distance)
+		{
+			float rayDistance = wall.horz_distance;
+			float distanceToProjPlan = (data->win_w / 2) * tan(data->fov/2);
+			float wallHeight = (data->sq_dim / rayDistance) * distanceToProjPlan;
+			draw_strip(data, i, wallHeight);
+			// draw_line(data, data->ppos_x, data->ppos_y, wall.horz_x, wall.horz_y, 0x000000ffff);
+		}
+		else 
+		{
+			float rayDistance = wall.vert_distance;
+			float distanceToProjPlan = (data->win_w / 2) * tan(data->fov/2);
+			float wallHeight = (data->sq_dim / rayDistance) * distanceToProjPlan;
+			draw_strip(data, i, wallHeight);
+			// draw_line(data, data->ppos_x, data->ppos_y, wall.horz_x, wall.horz_y, 0x000000ffff);
+		}
+			// draw_line(data, data->ppos_x, data->ppos_y, wall.vert_x, wall.vert_y, 0x0000ff00ff);
+
+		
+		i++;
+		left_angle += increase;
+	}
 	
 }
+void wall_projection(t_data *data)
+{
+	int i;
+	double left_angle;
+	float increase;
+	t_wall wall;
+
+	increase = fabs((float)data->fov/ (float)data->num_rays);
+	left_angle = data->p_angle - (data->fov/2);
+	i = 0;
+	while(i < data->num_rays)
+	{
+		normalize_angle(&left_angle);
+		wall.horz_found_wall = wall.vert_found_wall = false;
+		horizontal(data, left_angle, &wall);
+		verticall(data, left_angle, &wall);
+		if(wall.horz_found_wall && wall.vert_found_wall)
+		{
+			if(wall.horz_distance <= wall.vert_distance)
+				draw_line(data, data->ppos_x, data->ppos_y, wall.horz_x, wall.horz_y, 0x0000ff00ff);
+			else 
+				draw_line(data, data->ppos_x, data->ppos_y, wall.vert_x, wall.vert_y, 0x0000ff00ff);
+		}
+		else if(wall.horz_found_wall)
+			draw_line(data, data->ppos_x, data->ppos_y, wall.horz_x, wall.horz_y, 0x0000ff00ff);
+		else if(wall.vert_found_wall)
+			draw_line(data, data->ppos_x, data->ppos_y, wall.vert_x, wall.vert_y, 0x0000ff00ff);
+		i++;
+		left_angle += increase;
+	}
+	
+}
+
 
 void draw(void *dt)
 {    
     t_data* data;
 
     data = (t_data*)dt; 
-    draw_map(data);
+    // draw_map(data);
+    // draw_player(data);
     key_hook(data);
-    draw_player(data);
 	// printf("cos  = %f , sin = %f\n", cosf(data->p_angle), sinf(data->p_angle));
+	
 	ray_casting(data);
+	// wall_projection(data);
 	// draw_line(data, data->ppos_x, data->ppos_y, (data->ppos_x+cosf(data->p_angle)*15), (data->ppos_y+sinf(data->p_angle)*15), 0x00000000ff);
 
 }
@@ -456,12 +461,13 @@ void vue_angle(t_data *param)
 }
 void initialize_data(t_data* data)
 {
-	data->win_w = 1900;
-    data->win_h = 1000;
-    data->sq_dim = 50;
+    data->sq_dim = 80;
+	data->num_rays = 640;
+	data->mini_scale = 0.15;
 	data->rotation_angle = 1;
-	data->num_rays = 320;
 	data->fov = 60*(M_PI / 180);
+	data->win_w = data->width * data->sq_dim;
+    data->win_h = data->height * data->sq_dim;
 }
 
 int main(int ac, char **av)
@@ -470,9 +476,9 @@ int main(int ac, char **av)
 
     if(ac!= 2)
         return 1;
-	initialize_data(&data);
 	lire_map(&data, av[1]);
     len_mapp(&data);
+	initialize_data(&data);
     vue_angle(&data);
     data.mlx_in = mlx_init(data.win_w, data.win_h, "cub3D", 0);
 	data.mlx_im = mlx_new_image(data.mlx_in, data.win_w, data.win_h);
