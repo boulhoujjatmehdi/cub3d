@@ -4,11 +4,10 @@
 # include <unistd.h>
 # include <stdlib.h>
 # include <fcntl.h>
-# include <stdarg.h>
 # include <math.h>
 # include "MLX42/Include/MLX42.h"
 
-#include"stdio.h"
+#include "stdio.h"
 
 char	*get_next_line(int fd);
 
@@ -42,20 +41,23 @@ typedef struct s_data
     int     sq_dim;
     //player rotation angle
     int     rotation_angle;
+    //player radius
+    int     p_rad;;
     //player position x
-    float     ppos_x;
+    float   ppos_x;
     //player position y
-    float     ppos_y;
+    float   ppos_y;
     //player view angle
-    double     p_angle;
+    double  p_angle;
+
 
     //raycasting
     //field of view
-    float fov;
+    float   fov;
     //number of rays
-    int num_rays;
+    int     num_rays;
     //minimap scale
-    float mini_scale;
+    float   mini_scale;
 
 }t_data;
 

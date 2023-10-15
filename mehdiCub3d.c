@@ -140,7 +140,7 @@ int check_wall_at(t_data *param, double k, double l)
 	return (1);
 }
 
-void key_hook(t_data *pr)
+void mouvements(t_data *pr)
 {
 	float	tmpx;
 	float	tmpy;
@@ -152,34 +152,34 @@ void key_hook(t_data *pr)
 	{
 		pr->p_angle += (M_PI / 180) * pr->rotation_angle;
 	}
-	tmpx = cosf(pr->p_angle);
-	tmpy = sinf(pr->p_angle);
+	tmpx = cos(pr->p_angle) * 7;
+	tmpy = sin(pr->p_angle) * 7;
 
 	if (mlx_is_key_down(pr->mlx_in, MLX_KEY_W) && check_wall_at(pr, (pr->ppos_y + tmpy) , (pr->ppos_x + tmpx) ))
 	{
-		pr->ppos_x += cosf(pr->p_angle);
-		pr->ppos_y += sinf(pr->p_angle);
+		pr->ppos_x += cos(pr->p_angle)*1.5;
+		pr->ppos_y += sin(pr->p_angle)*1.5;
 		// printf("W = %f - %f\n", pr->ppos_x, pr->ppos_y);
 
 	}
-	else if (mlx_is_key_down(pr->mlx_in, MLX_KEY_S) && check_wall_at(pr, (pr->ppos_y-tmpy)  , (pr->ppos_x - tmpx) ))
+	if (mlx_is_key_down(pr->mlx_in, MLX_KEY_S) && check_wall_at(pr, (pr->ppos_y-tmpy)  , (pr->ppos_x - tmpx) ))
 	{
-		pr->ppos_x -= cosf(pr->p_angle);
-		pr->ppos_y -= sinf(pr->p_angle);
+		pr->ppos_x -= cos(pr->p_angle)*1.5;
+		pr->ppos_y -= sin(pr->p_angle)*1.5;
 		// printf("S = %f - %f\n", pr->ppos_x, pr->ppos_y);
 	}
-	tmpx = cosf(pr->p_angle + 90 * (M_PI / 180));
-	tmpy = sinf(pr->p_angle + 90 * (M_PI / 180));
+	tmpx = cos(pr->p_angle + 90 * (M_PI / 180)) * 7;
+	tmpy = sin(pr->p_angle + 90 * (M_PI / 180)) * 7;
 	if (mlx_is_key_down(pr->mlx_in, MLX_KEY_A) && check_wall_at(pr, (pr->ppos_y - tmpy) , (pr->ppos_x - tmpx) ))
 	{
-		pr->ppos_x -= cosf(pr->p_angle + 90 * (M_PI / 180));
-		pr->ppos_y -= sinf(pr->p_angle + 90 * (M_PI / 180));
+		pr->ppos_x -= cos(pr->p_angle + 90 * (M_PI / 180));
+		pr->ppos_y -= sin(pr->p_angle + 90 * (M_PI / 180));
 		// printf("A = %f - %f\n", pr->ppos_x, pr->ppos_y);
 	}
-	else if (mlx_is_key_down(pr->mlx_in, MLX_KEY_D) && check_wall_at(pr, (pr->ppos_y + tmpy) , roundf(pr->ppos_x + tmpx) ))
+	if (mlx_is_key_down(pr->mlx_in, MLX_KEY_D) && check_wall_at(pr, (pr->ppos_y + tmpy) , roundf(pr->ppos_x + tmpx) ))
 	{
-		pr->ppos_x += cosf(pr->p_angle + 90 * (M_PI / 180));
-		pr->ppos_y += sinf(pr->p_angle + 90 * (M_PI / 180));
+		pr->ppos_x += cos(pr->p_angle + 90 * (M_PI / 180));
+		pr->ppos_y += sin(pr->p_angle + 90 * (M_PI / 180));
 		// printf("D = %f - %f\n", pr->ppos_x, pr->ppos_y);
 	}
 	else if (mlx_is_key_down(pr->mlx_in, MLX_KEY_Q))
@@ -236,7 +236,7 @@ void horizontal(t_data* data, double ray_angle, t_wall* wall)
 	wall->horz_x = data->ppos_x;
 	wall->horz_y = data->ppos_y;
 			wall->horz_distance = INT32_MAX;
-	while(next_touch_x >= 0 && next_touch_x <= data->win_w && next_touch_y >=0 && next_touch_y <= data->win_h)
+	while(next_touch_x >= 0 && next_touch_x <= (data->width) && next_touch_y >=0 && next_touch_y <= data->height)
 	{
 		float check_x = next_touch_x;
 		float check_y = next_touch_y + (facing_up? -1: 0);
@@ -303,7 +303,7 @@ void verticall(t_data* data, double ray_angle, t_wall* wall)
 	wall->vert_y = data->ppos_y;
 
 			wall->vert_distance = INT32_MAX;
-	while(next_touch_x >= 0 && next_touch_x <= data->win_w && next_touch_y >=0 && next_touch_y <= data->win_h)
+	while(next_touch_x >= 0 && next_touch_x <= data->width && next_touch_y >=0 && next_touch_y <= data->height)
 	{
 
 		float check_x = next_touch_x + (facing_left? -1:0);
@@ -323,22 +323,30 @@ void verticall(t_data* data, double ray_angle, t_wall* wall)
 		}
 	}
 }
-void draw_strip(t_data* data, int x, float wall_hight)
+void draw_strip(t_data* data, int x, double wall_hight, int color)
 {
 	int i = 0;
-
+	// printf("")
 	int begin  = (data->win_h/2)- (wall_hight/2);
-	while(i < data->win_h)
+	if(begin < 0)
+	{
+		begin = 0;
+		wall_hight = data->win_h;
+	}
+	while(i < data->win_h/2)
 		mlx_put_pixel(data->mlx_im, x, i++, 0x00000000ff);
+	while( i < data->win_h)
+		mlx_put_pixel(data->mlx_im, x, i++, 0x006e7175ff);
+
 	i = 0;
 	while(i < wall_hight)
 	{
-		mlx_put_pixel(data->mlx_im, x, begin, 0x00ffffffff);
+		mlx_put_pixel(data->mlx_im, x, begin, color);
 		begin ++;
 		i++;
 	}
 }
-void ray_casting(t_data *data)
+void wall_projection(t_data *data)
 {
 	int i;
 	double left_angle;
@@ -348,38 +356,37 @@ void ray_casting(t_data *data)
 	increase = fabs((float)data->fov/ (float)data->num_rays);
 	left_angle = data->p_angle - (data->fov/2);
 	i = 0;
+	bool test;
+	test = false;
 	while(i < data->num_rays)
 	{
-		normalize_angle(&left_angle);//WHY 
+		normalize_angle(&left_angle);
+		normalize_angle(&data->p_angle);
 		wall.horz_found_wall = wall.vert_found_wall = false;
 		horizontal(data, left_angle, &wall);
 		verticall(data, left_angle, &wall);
-
-		if(wall.horz_distance < wall.vert_distance)
+		if(wall.horz_distance < wall.vert_distance || (wall.horz_distance == wall.vert_distance && test == false))
 		{
-			float rayDistance = wall.horz_distance;
-			float distanceToProjPlan = (data->win_w / 2) * tan(data->fov/2);
-			float wallHeight = (data->sq_dim / rayDistance) * distanceToProjPlan;
-			draw_strip(data, i, wallHeight);
-			// draw_line(data, data->ppos_x, data->ppos_y, wall.horz_x, wall.horz_y, 0x000000ffff);
+			test = false;
+			double rayDistance = wall.horz_distance *cos(data->p_angle - left_angle);
+			double distanceToProjPlan = (data->win_w / 2) * tan(data->fov/2);
+			double wallHeight = (70 / rayDistance) * distanceToProjPlan;
+			draw_strip(data, i, wallHeight, 0x00ff0000ff);
 		}
-		else 
+		else if(wall.horz_distance > wall.vert_distance || (wall.horz_distance == wall.vert_distance && test == true))
 		{
-			float rayDistance = wall.vert_distance;
-			float distanceToProjPlan = (data->win_w / 2) * tan(data->fov/2);
-			float wallHeight = (data->sq_dim / rayDistance) * distanceToProjPlan;
-			draw_strip(data, i, wallHeight);
-			// draw_line(data, data->ppos_x, data->ppos_y, wall.horz_x, wall.horz_y, 0x000000ffff);
+			test = true;
+			double rayDistance = wall.vert_distance *cos(data->p_angle - left_angle);
+			double distanceToProjPlan = (data->win_w / 2) * tan(data->fov/2);
+			double wallHeight = (70 / rayDistance) * distanceToProjPlan;
+			draw_strip(data, i, wallHeight, 0x0000ff00ff);
 		}
-			// draw_line(data, data->ppos_x, data->ppos_y, wall.vert_x, wall.vert_y, 0x0000ff00ff);
-
-		
 		i++;
 		left_angle += increase;
 	}
 	
 }
-void wall_projection(t_data *data)
+void ray_casting(t_data *data)
 {
 	int i;
 	double left_angle;
@@ -395,17 +402,18 @@ void wall_projection(t_data *data)
 		wall.horz_found_wall = wall.vert_found_wall = false;
 		horizontal(data, left_angle, &wall);
 		verticall(data, left_angle, &wall);
-		if(wall.horz_found_wall && wall.vert_found_wall)
-		{
-			if(wall.horz_distance <= wall.vert_distance)
+		// if(wall.horz_found_wall && wall.vert_found_wall)
+		// {
+			if(wall.horz_distance < wall.vert_distance)
 				draw_line(data, data->ppos_x, data->ppos_y, wall.horz_x, wall.horz_y, 0x0000ff00ff);
-			else 
-				draw_line(data, data->ppos_x, data->ppos_y, wall.vert_x, wall.vert_y, 0x0000ff00ff);
-		}
-		else if(wall.horz_found_wall)
-			draw_line(data, data->ppos_x, data->ppos_y, wall.horz_x, wall.horz_y, 0x0000ff00ff);
-		else if(wall.vert_found_wall)
-			draw_line(data, data->ppos_x, data->ppos_y, wall.vert_x, wall.vert_y, 0x0000ff00ff);
+			else if(wall.horz_distance > wall.vert_distance)
+				draw_line(data, data->ppos_x, data->ppos_y, wall.vert_x, wall.vert_y, 0x000000ffff);
+			// else if()
+		// }
+		// else if(wall.horz_found_wall)
+		// 	draw_line(data, data->ppos_x, data->ppos_y, wall.horz_x, wall.horz_y, 0x0000ff00ff);
+		// else if(wall.vert_found_wall)
+		// 	draw_line(data, data->ppos_x, data->ppos_y, wall.vert_x, wall.vert_y, 0x000000ffff);
 		i++;
 		left_angle += increase;
 	}
@@ -420,11 +428,11 @@ void draw(void *dt)
     data = (t_data*)dt; 
     // draw_map(data);
     // draw_player(data);
-    key_hook(data);
+    mouvements(data);
 	// printf("cos  = %f , sin = %f\n", cosf(data->p_angle), sinf(data->p_angle));
 	
-	ray_casting(data);
-	// wall_projection(data);
+	// ray_casting(data);
+	wall_projection(data);
 	// draw_line(data, data->ppos_x, data->ppos_y, (data->ppos_x+cosf(data->p_angle)*15), (data->ppos_y+sinf(data->p_angle)*15), 0x00000000ff);
 
 }
@@ -461,13 +469,16 @@ void vue_angle(t_data *param)
 }
 void initialize_data(t_data* data)
 {
-    data->sq_dim = 80;
-	data->num_rays = 640;
+    data->sq_dim = 50;
 	data->mini_scale = 0.15;
+	data->p_rad = 4;
 	data->rotation_angle = 1;
 	data->fov = 60*(M_PI / 180);
-	data->win_w = data->width * data->sq_dim;
-    data->win_h = data->height * data->sq_dim;
+	data->win_w = 1900;
+    data->win_h = 980;
+	data->width *= data->sq_dim;
+	data->height *= data->sq_dim;
+	data->num_rays = data->win_w;
 }
 
 int main(int ac, char **av)
