@@ -183,7 +183,9 @@ void mouvements(t_data *pr)
 		// printf("D = %f - %f\n", pr->ppos_x, pr->ppos_y);
 	}
 	else if (mlx_is_key_down(pr->mlx_in, MLX_KEY_Q))
+	{
 		exit(1);
+	}
 }
 void normalize_angle(double *angle)
 {
@@ -245,7 +247,7 @@ void horizontal(t_data* data, double ray_angle, t_wall* wall)
 		{
 			wall->horz_found_wall = true;
 			wall->horz_x = next_touch_x;
-			wall->horz_y  = next_touch_y;
+			wall->horz_y  = next_touch_y; 
 			wall->horz_distance = sqrt((wall->horz_x - data->ppos_x) * (wall->horz_x - data->ppos_x)+(wall->horz_y - data->ppos_y)* (wall->horz_y - data->ppos_y));
 			break;
 		}
@@ -371,6 +373,7 @@ void wall_projection(t_data *data)
 			double rayDistance = wall.horz_distance *cos(data->p_angle - left_angle);
 			double distanceToProjPlan = (data->win_w / 2) * tan(data->fov/2);
 			double wallHeight = (70 / rayDistance) * distanceToProjPlan;
+			
 			draw_strip(data, i, wallHeight, 0x00ff0000ff);
 		}
 		else if(wall.horz_distance > wall.vert_distance || (wall.horz_distance == wall.vert_distance && test == true))
@@ -384,7 +387,6 @@ void wall_projection(t_data *data)
 		i++;
 		left_angle += increase;
 	}
-	
 }
 void ray_casting(t_data *data)
 {
@@ -419,7 +421,23 @@ void ray_casting(t_data *data)
 	}
 	
 }
-
+int32_t ft_pixel(int32_t r, int32_t g, int32_t b, int32_t a)
+{
+    return (r << 24 | g << 16 | b << 8 | a);
+}
+void render_image(t_data* data)
+{
+	mlx_texture_t* txtr;
+	txtr = mlx_load_png("eboulhou.png");
+	for (int y = 0; y < 500 ; y++)
+	{
+		for (int x = 0; x < 500; x++)
+		{
+			uint32_t color = (txtr->pixels[(y*txtr->width*4) + (x * 4)+0]<< 24) + (txtr->pixels[(y*txtr->width*4) + (x * 4)+1]<< 16) +(txtr->pixels[(y*txtr->width*4) + (x * 4)+2]<< 8) + (txtr->pixels[(y*txtr->width*4) + (x * 4)+3]);
+			mlx_put_pixel(data->mlx_im, x, y, color);
+		}
+	}
+}
 
 void draw(void *dt)
 {    
@@ -433,6 +451,8 @@ void draw(void *dt)
 	
 	// ray_casting(data);
 	wall_projection(data);
+
+	// render_image(data);
 	// draw_line(data, data->ppos_x, data->ppos_y, (data->ppos_x+cosf(data->p_angle)*15), (data->ppos_y+sinf(data->p_angle)*15), 0x00000000ff);
 
 }

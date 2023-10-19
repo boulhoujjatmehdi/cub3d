@@ -29,8 +29,10 @@ GLFW       = -I include -lglfw -L"/goinfre/$(USER)/homebrew/opt/glfw/lib/"
 RED = \033[0;31m
 GREEN = \033[0;32m
 YELLOW = \033[0;33m
+WHITE= \033[0;37m
 
 run: all
+	@printf "$(WHITE)"
 	@./CUB3D map.ber
 
 all: $(NAME)

@@ -9,6 +9,13 @@
 
 #include "stdio.h"
 
+
+#define NORTH 0;
+#define SOUTH 1;
+#define EAST  2;
+#define WEST  3;
+
+
 char	*get_next_line(int fd);
 
 typedef struct s_wall
@@ -22,6 +29,7 @@ typedef struct s_wall
     float vert_distance;
     int vert_x;
     int vert_y;
+    int direction;
 } t_wall;
 
 typedef struct s_data
