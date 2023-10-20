@@ -133,7 +133,6 @@ int check_wall_at(t_data *param, double k, double l)
 	// puts("was here1");
 	if (param->mat[(int)(k/param->sq_dim)][(int)(l/param->sq_dim)] == '1')
 	{
-		// puts("was here2");
 		return (0);
 	}
 	// puts("was here3");
@@ -152,39 +151,39 @@ void mouvements(t_data *pr)
 	{
 		pr->p_angle += (M_PI / 180) * pr->rotation_angle;
 	}
-	tmpx = cos(pr->p_angle) * 7;
-	tmpy = sin(pr->p_angle) * 7;
+	tmpx = cos(pr->p_angle) * pr->p_rad;
+	tmpy = sin(pr->p_angle) * pr->p_rad;
 
 	if (mlx_is_key_down(pr->mlx_in, MLX_KEY_W) && check_wall_at(pr, (pr->ppos_y + tmpy) , (pr->ppos_x + tmpx) ))
 	{
-		pr->ppos_x += cos(pr->p_angle)*1.5;
-		pr->ppos_y += sin(pr->p_angle)*1.5;
+		pr->ppos_x += cos(pr->p_angle)* pr->p_speed;
+		pr->ppos_y += sin(pr->p_angle)* pr->p_speed;
 		// printf("W = %f - %f\n", pr->ppos_x, pr->ppos_y);
 
 	}
 	if (mlx_is_key_down(pr->mlx_in, MLX_KEY_S) && check_wall_at(pr, (pr->ppos_y-tmpy)  , (pr->ppos_x - tmpx) ))
 	{
-		pr->ppos_x -= cos(pr->p_angle)*1.5;
-		pr->ppos_y -= sin(pr->p_angle)*1.5;
+		pr->ppos_x -= cos(pr->p_angle)* pr->p_speed;
+		pr->ppos_y -= sin(pr->p_angle)* pr->p_speed;
 		// printf("S = %f - %f\n", pr->ppos_x, pr->ppos_y);
 	}
-	tmpx = cos(pr->p_angle + 90 * (M_PI / 180)) * 7;
-	tmpy = sin(pr->p_angle + 90 * (M_PI / 180)) * 7;
+	tmpx = cos(pr->p_angle + M_PI_2) * pr->p_rad;
+	tmpy = sin(pr->p_angle + M_PI_2) * pr->p_rad;
 	if (mlx_is_key_down(pr->mlx_in, MLX_KEY_A) && check_wall_at(pr, (pr->ppos_y - tmpy) , (pr->ppos_x - tmpx) ))
 	{
-		pr->ppos_x -= cos(pr->p_angle + 90 * (M_PI / 180));
-		pr->ppos_y -= sin(pr->p_angle + 90 * (M_PI / 180));
+		pr->ppos_x -= cos(pr->p_angle + M_PI_2)* pr->p_speed;
+		pr->ppos_y -= sin(pr->p_angle + M_PI_2)* pr->p_speed;
 		// printf("A = %f - %f\n", pr->ppos_x, pr->ppos_y);
 	}
 	if (mlx_is_key_down(pr->mlx_in, MLX_KEY_D) && check_wall_at(pr, (pr->ppos_y + tmpy) , roundf(pr->ppos_x + tmpx) ))
 	{
-		pr->ppos_x += cos(pr->p_angle + 90 * (M_PI / 180));
-		pr->ppos_y += sin(pr->p_angle + 90 * (M_PI / 180));
+		pr->ppos_x += cos(pr->p_angle + M_PI_2)* pr->p_speed;
+		pr->ppos_y += sin(pr->p_angle + M_PI_2)* pr->p_speed;
 		// printf("D = %f - %f\n", pr->ppos_x, pr->ppos_y);
 	}
-	else if (mlx_is_key_down(pr->mlx_in, MLX_KEY_Q))
+	else if (mlx_is_key_down(pr->mlx_in, MLX_KEY_Q) || mlx_is_key_down(pr->mlx_in, MLX_KEY_ESCAPE))
 	{
-		exit(1);
+		exit(0);
 	}
 }
 void normalize_angle(double *angle)
@@ -237,7 +236,7 @@ void horizontal(t_data* data, double ray_angle, t_wall* wall)
 	
 	wall->horz_x = data->ppos_x;
 	wall->horz_y = data->ppos_y;
-			wall->horz_distance = INT32_MAX;
+	wall->horz_distance = INT32_MAX;
 	while(next_touch_x >= 0 && next_touch_x <= (data->width) && next_touch_y >=0 && next_touch_y <= data->height)
 	{
 		float check_x = next_touch_x;
@@ -258,6 +257,7 @@ void horizontal(t_data* data, double ray_angle, t_wall* wall)
 		}
 	}
 }
+
 void verticall(t_data* data, double ray_angle, t_wall* wall)
 {
 	float x_inters;
@@ -325,28 +325,62 @@ void verticall(t_data* data, double ray_angle, t_wall* wall)
 		}
 	}
 }
-void draw_strip(t_data* data, int x, double wall_hight, int color)
+
+int32_t ft_pixel(int32_t r, int32_t g, int32_t b, int32_t a)
 {
-	int i = 0;
-	// printf("")
+    return (r << 24 | g << 16 | b << 8 | a);
+}
+
+void render_image(t_data* data)
+{
+	mlx_texture_t* txtr;
+	txtr = mlx_load_png("eboulhou.png");
+	for (int y = 0; y < 500 ; y++)
+	{
+		for (int x = 0; x < 500; x++)
+		{
+			uint32_t color = (txtr->pixels[(y*4) + (x * 4*txtr->width)+0]<< 24) + (txtr->pixels[(y*4) + (x * 4*txtr->width)+1]<< 16) +(txtr->pixels[(y*4) + (x * 4*txtr->width)+2]<< 8) + (txtr->pixels[(y*4) + (x * 4*txtr->width)+3]);
+			mlx_put_pixel(data->mlx_im, x, y, color);
+		}
+	}
+}
+void draw_strip(t_data* data, int x, double wall_hight,int x_offset, uint32_t color)
+{
+	(void)color;
 	int begin  = (data->win_h/2)- (wall_hight/2);
+	int i = 0;
 	if(begin < 0)
 	{
 		begin = 0;
 		wall_hight = data->win_h;
 	}
-	while(i < data->win_h/2)
-		mlx_put_pixel(data->mlx_im, x, i++, 0x00000000ff);
-	while( i < data->win_h)
-		mlx_put_pixel(data->mlx_im, x, i++, 0x006e7175ff);
-
-	i = 0;
-	while(i < wall_hight)
+	while(i < begin)
 	{
-		mlx_put_pixel(data->mlx_im, x, begin, color);
+		mlx_put_pixel(data->mlx_im, x, i, 0x000000ff);
+		i++;
+	}
+
+	// mlx_texture_t *txt = mlx_load_png("eboulhou.png");
+
+	while(wall_hight-- > 0)
+	{
+		// int y_offset;
+		// y_offset = (i - begin) * (txt->height / wall_hight);
+		// // int nb = (x_offset * 4 * txt->width)+()
+		// uint32_t *color = txt->pixels[0];
+
+		mlx_put_pixel(data->mlx_im, x, i, color);
 		begin ++;
 		i++;
 	}
+
+	while(i < data->win_h)
+	{
+		mlx_put_pixel(data->mlx_im, x, i, 0x7a776eff);
+		i++;
+	}
+	x_offset = 0;
+
 }
 void wall_projection(t_data *data)
 {
@@ -372,17 +406,21 @@ void wall_projection(t_data *data)
 			test = false;
 			double rayDistance = wall.horz_distance *cos(data->p_angle - left_angle);
 			double distanceToProjPlan = (data->win_w / 2) * tan(data->fov/2);
-			double wallHeight = (70 / rayDistance) * distanceToProjPlan;
-			
-			draw_strip(data, i, wallHeight, 0x00ff0000ff);
+			double wallHeight = (data->sq_dim / rayDistance) * distanceToProjPlan;
+			int x_offset = (int)wall.horz_x % data->sq_dim;//TODO: WHY INT CASTING
+			// printf("horizontal x %d\n", x_offset);
+			draw_strip(data, i, wallHeight, x_offset, 0xff0000ff);
+
 		}
 		else if(wall.horz_distance > wall.vert_distance || (wall.horz_distance == wall.vert_distance && test == true))
 		{
 			test = true;
 			double rayDistance = wall.vert_distance *cos(data->p_angle - left_angle);
 			double distanceToProjPlan = (data->win_w / 2) * tan(data->fov/2);
-			double wallHeight = (70 / rayDistance) * distanceToProjPlan;
-			draw_strip(data, i, wallHeight, 0x0000ff00ff);
+			double wallHeight = (data->sq_dim / rayDistance) * distanceToProjPlan;
+			int x_offset = (int)wall.vert_y % data->sq_dim;
+			// printf("vertical x %d\n", x_offset);
+			draw_strip(data, i, wallHeight, x_offset, 0x00ff00ff);
 		}
 		i++;
 		left_angle += increase;
@@ -404,40 +442,17 @@ void ray_casting(t_data *data)
 		wall.horz_found_wall = wall.vert_found_wall = false;
 		horizontal(data, left_angle, &wall);
 		verticall(data, left_angle, &wall);
-		// if(wall.horz_found_wall && wall.vert_found_wall)
-		// {
+
 			if(wall.horz_distance < wall.vert_distance)
 				draw_line(data, data->ppos_x, data->ppos_y, wall.horz_x, wall.horz_y, 0x0000ff00ff);
 			else if(wall.horz_distance > wall.vert_distance)
 				draw_line(data, data->ppos_x, data->ppos_y, wall.vert_x, wall.vert_y, 0x000000ffff);
-			// else if()
-		// }
-		// else if(wall.horz_found_wall)
-		// 	draw_line(data, data->ppos_x, data->ppos_y, wall.horz_x, wall.horz_y, 0x0000ff00ff);
-		// else if(wall.vert_found_wall)
-		// 	draw_line(data, data->ppos_x, data->ppos_y, wall.vert_x, wall.vert_y, 0x000000ffff);
 		i++;
 		left_angle += increase;
 	}
 	
 }
-int32_t ft_pixel(int32_t r, int32_t g, int32_t b, int32_t a)
-{
-    return (r << 24 | g << 16 | b << 8 | a);
-}
-void render_image(t_data* data)
-{
-	mlx_texture_t* txtr;
-	txtr = mlx_load_png("eboulhou.png");
-	for (int y = 0; y < 500 ; y++)
-	{
-		for (int x = 0; x < 500; x++)
-		{
-			uint32_t color = (txtr->pixels[(y*txtr->width*4) + (x * 4)+0]<< 24) + (txtr->pixels[(y*txtr->width*4) + (x * 4)+1]<< 16) +(txtr->pixels[(y*txtr->width*4) + (x * 4)+2]<< 8) + (txtr->pixels[(y*txtr->width*4) + (x * 4)+3]);
-			mlx_put_pixel(data->mlx_im, x, y, color);
-		}
-	}
-}
+
 
 void draw(void *dt)
 {    
@@ -489,13 +504,14 @@ void vue_angle(t_data *param)
 }
 void initialize_data(t_data* data)
 {
-    data->sq_dim = 50;
+    data->sq_dim = 500;
 	data->mini_scale = 0.15;
-	data->p_rad = 4;
+	data->p_rad = 8;
+	data->p_speed = 4;
 	data->rotation_angle = 1;
 	data->fov = 60*(M_PI / 180);
-	data->win_w = 1900;
-    data->win_h = 980;
+	data->win_w = 1600;
+    data->win_h = 800;
 	data->width *= data->sq_dim;
 	data->height *= data->sq_dim;
 	data->num_rays = data->win_w;

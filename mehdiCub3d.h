@@ -50,7 +50,9 @@ typedef struct s_data
     //player rotation angle
     int     rotation_angle;
     //player radius
-    int     p_rad;;
+    int     p_rad;
+    //player speed
+    int     p_speed;
     //player position x
     float   ppos_x;
     //player position y
