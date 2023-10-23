@@ -16,7 +16,7 @@ void lire_map(t_data *data, char *av)
 		i++;
 		free(c);
 		if (!c)
-			break; //TODO: SEGV: MOVE THIS UP IT CAN CAUSE A SEGV
+			break;
 	}
 	close(fd);
 	fd = open(av, O_RDONLY);
@@ -305,6 +305,8 @@ void verticall(t_data* data, double ray_angle, t_wall* wall)
 	wall->vert_y = data->ppos_y;
 
 			wall->vert_distance = INT32_MAX;
+	// printf("%d",data->width);
+	// exit(0);
 	while(next_touch_x >= 0 && next_touch_x <= data->width && next_touch_y >=0 && next_touch_y <= data->height)
 	{
 
@@ -344,40 +346,46 @@ void render_image(t_data* data)
 		}
 	}
 }
-void draw_strip(t_data* data, int x, double wall_hight,int x_offset, uint32_t color)
+void draw_strip(t_data* data, int ray_x, double wall_hight,int x_offset, uint32_t color)
 {
-	(void)color;
+	mlx_texture_t* tex;
+	float wall_strip_height;
+	wall_strip_height = wall_hight;
+	tex = data->txt_n;
 	int begin  = (data->win_h/2)- (wall_hight/2);
-	int i = 0;
-	if(begin < 0)
+	int ray_y = 0;
+	// if(begin < 0)
+	// {
+	// 	begin = 0;
+	// 	wall_hight = data->win_h;
+	// }
+	while(ray_y < begin)
 	{
-		begin = 0;
-		wall_hight = data->win_h;
+		mlx_put_pixel(data->mlx_im, ray_x, ray_y, 0x000000ff);
+		ray_y++;
 	}
-	while(i < begin)
+	ray_y = begin;
+	int i = begin;
+	while(i++ < begin + wall_hight)
 	{
-		mlx_put_pixel(data->mlx_im, x, i, 0x000000ff);
-		i++;
+		if(i < data->win_h&& i > 0)
+		{
+			int y_offset;
+			int distance_from_top = ray_y + (wall_strip_height / 2) - ((float)data->win_h / 2);
+			y_offset = distance_from_top * ((float)data->txt_n->height / wall_hight);
+			y_offset = abs(y_offset);
+
+			color = (tex->pixels[(y_offset*data->txt_n->width*4) + (x_offset * 4)+0]<< 24) + (tex->pixels[(y_offset*data->txt_n->width*4) + (x_offset * 4)+1]<< 16) +(tex->pixels[(y_offset*data->txt_n->width*4) + (x_offset * 4)+2]<< 8) + (tex->pixels[(y_offset*data->txt_n->width*4) + (x_offset * 4)+3]);
+			// color = (uint32_t)tex->pixels[((y_offset*data->txt_n->width*4) + (x_offset * 4)+0)];
+			mlx_put_pixel(data->mlx_im, ray_x, ray_y, color);
+		}
+		ray_y++;
 	}
 
-	// mlx_texture_t *txt = mlx_load_png("eboulhou.png");
-
-	while(wall_hight-- > 0)
+	while(ray_y < data->win_h)
 	{
-		// int y_offset;
-		// y_offset = (i - begin) * (txt->height / wall_hight);
-		// // int nb = (x_offset * 4 * txt->width)+()
-		// uint32_t *color = txt->pixels[0];
-
-		mlx_put_pixel(data->mlx_im, x, i, color);
-		begin ++;
-		i++;
-	}
-
-	while(i < data->win_h)
-	{
-		mlx_put_pixel(data->mlx_im, x, i, 0x7a776eff);
-		i++;
+		mlx_put_pixel(data->mlx_im, ray_x, ray_y, 0x7a776eff);
+		ray_y++;
 	}
 	x_offset = 0;
 
@@ -407,10 +415,18 @@ void wall_projection(t_data *data)
 			double rayDistance = wall.horz_distance *cos(data->p_angle - left_angle);
 			double distanceToProjPlan = (data->win_w / 2) * tan(data->fov/2);
 			double wallHeight = (data->sq_dim / rayDistance) * distanceToProjPlan;
-			int x_offset = (int)wall.horz_x % data->sq_dim;//TODO: WHY INT CASTING
-			// printf("horizontal x %d\n", x_offset);
+			int x_offset = (data->txt_n->width / data->sq_dim ) * wall.horz_x % data->sq_dim;//TODO: WHY INT CASTING
+			// test if the wall is facing left or right so we can set wall.direction to NORTH or SOUTH
+			if(wall.horz_distance < wall.vert_distance)
+			{
+				if(wall.horz_y > data->ppos_y)
+				{
+					wall.direction = NORTH;
+				}
+				else
+					wall.direction = SOUTH;
+			}
 			draw_strip(data, i, wallHeight, x_offset, 0xff0000ff);
-
 		}
 		else if(wall.horz_distance > wall.vert_distance || (wall.horz_distance == wall.vert_distance && test == true))
 		{
@@ -418,8 +434,18 @@ void wall_projection(t_data *data)
 			double rayDistance = wall.vert_distance *cos(data->p_angle - left_angle);
 			double distanceToProjPlan = (data->win_w / 2) * tan(data->fov/2);
 			double wallHeight = (data->sq_dim / rayDistance) * distanceToProjPlan;
-			int x_offset = (int)wall.vert_y % data->sq_dim;
-			// printf("vertical x %d\n", x_offset);
+			int x_offset =(data->txt_n->width / data->sq_dim ) * wall.vert_y % data->sq_dim;
+			// printf("x_offset = %d\n", x_offset);
+			//test if the wall is facing up or down so we can set wall.direction to EAST or WEST
+			if(wall.vert_distance < wall.horz_distance)
+			{
+				if(wall.vert_x > data->ppos_x)
+				{
+					wall.direction = EAST;
+				}
+				else
+					wall.direction = WEST;
+			}
 			draw_strip(data, i, wallHeight, x_offset, 0x00ff00ff);
 		}
 		i++;
@@ -512,9 +538,16 @@ void initialize_data(t_data* data)
 	data->fov = 60*(M_PI / 180);
 	data->win_w = 1600;
     data->win_h = 800;
-	data->width *= data->sq_dim;
-	data->height *= data->sq_dim;
+	printf("datawidth = %d\n", data->width);
+	printf("dataheight = %d\n", data->height);
+	data->width =(data->width - 1) * data->sq_dim;
+	data->height = (data->height - 1) * data->sq_dim;
 	data->num_rays = data->win_w;
+	data->txt_n = mlx_load_png("eboulhou.png");
+
+	// mlx_image_t *img = mlx_texture_to_image(data->mlx_in, data->txt_n);
+	// mlx_resize_image(img, data->sq_dim, data->sq_dim);
+
 }
 
 int main(int ac, char **av)

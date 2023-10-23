@@ -60,6 +60,14 @@ typedef struct s_data
     //player view angle
     double  p_angle;
 
+    //texture for north wall
+    mlx_texture_t* txt_n;
+    //texture for south wall
+    mlx_texture_t* txt_s;
+    //texture for east wall
+    mlx_texture_t* txt_e;
+    //texture for west wall
+    mlx_texture_t* txt_w;
 
     //raycasting
     //field of view
