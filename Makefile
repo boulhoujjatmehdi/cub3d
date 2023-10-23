@@ -18,36 +18,46 @@ RM		= rm -rf
 SRC		= 	get_next_line_utils.c \
 			mehdiCub3d.c\
 			ft_printf.c\
-			get_next_line.c
+			get_next_line.c\
+			# parse.c
+
 # 
 IMLX	     = -I MLX42/include
 MLX        = MLX42/build/libmlx42.a
+LIBFT			 = libft/libft.a
 FRAMEWORKS = -framework Cocoa -framework OpenGL -framework IOKit
-GLFW       = -I include -lglfw -L"/goinfre/$(USER)/homebrew/opt/glfw/lib/"
+GLFW       = -Iinclude -lglfw -L"/goinfre/$(USER)/homebrew/opt/glfw/lib/"
+OBJ		= ${SRC:.c=.o}
 # 
 #Colors:
 RED = \033[0;31m
 GREEN = \033[0;32m
 YELLOW = \033[0;33m
-WHITE= \033[0;37m
+
 
 run: all
-	@printf "$(WHITE)"
 	@./CUB3D map.ber
 
 all: $(NAME)
 
-$(NAME): $(SRC)
+$(NAME): $(OBJ) $(LIBFT)
 	@printf "$(YELLOW) Compiling $(NAME)... \n"
-	@ $(CC) $(FLAGS) $(MLX) $(FRAMEWORKS) $(GLFW) $(SRC) -o $(NAME)
+	@ $(CC) $(OBJ) $(LIBFT) $(MLX) $(GLFW) -fsanitize=address -o $(NAME)
 	@printf "$(GREEN) Executable ready.\n"
 
+%.o : %.c
+	${CC} ${CFLAGS} -c $< -o $@
+
+$(LIBFT):
+	make -C libft
+
 clean:
-	@$(RM) $(NAME)
+	$(MAKE) fclean -C libft
+	$(RM) $(OBJ)
 	@printf "$(RED)    - Executable removed.\n"
 
-fclean:
-	@$(RM) $(NAME)
+fclean: clean
+	$(RM) $(NAME)
 	@printf "$(RED)    - Executable removed.\n"
 
-re: clean all run
+re: fclean run

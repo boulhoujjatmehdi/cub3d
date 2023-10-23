@@ -6,13 +6,13 @@
 /*   By: rarraji <rarraji@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/11/01 12:48:55 by rarraji           #+#    #+#             */
-/*   Updated: 2023/09/18 09:28:56 by rarraji          ###   ########.fr       */
+/*   Updated: 2023/10/11 20:04:36 by rarraji          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "cub3d.h"
 
-int	ft_strlen(char *s)
+int	ft_strlen1(char *s)
 {
 	int	i;
 
@@ -25,7 +25,7 @@ int	ft_strlen(char *s)
 }
 // -----------------------------------------------//
 
-char	*ft_strjoin(char *s1, char *s2)
+char	*ft_strjoin1(char *s1, char *s2)
 {
 	char	*s;
 	int		i;
@@ -35,7 +35,7 @@ char	*ft_strjoin(char *s1, char *s2)
 	j = 0;
 	if (!s1 && !s2)
 		return (NULL);
-	s = (char *)malloc(ft_strlen(s1) + ft_strlen(s2) + 1);
+	s = (char *)malloc(ft_strlen1(s1) + ft_strlen1(s2) + 1);
 	if (!s)
 		return (NULL);
 	while (s1 && s1[i] != '\0')
@@ -55,7 +55,7 @@ char	*ft_strjoin(char *s1, char *s2)
 }
 // -----------------------------------------------//
 
-int	ft_strchr(char *s, char c)
+int	ft_strchr1(char *s, char c)
 {
 	int	i;
 
@@ -72,7 +72,7 @@ int	ft_strchr(char *s, char c)
 }
 // -----------------------------------------------//
 
-char	*ft_substr(char *s, int start, int len)
+char	*ft_substr1(char *s, int start, int len)
 {
 	char	*p;
 	int		i;

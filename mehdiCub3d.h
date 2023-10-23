@@ -68,7 +68,8 @@ typedef struct s_data
     mlx_texture_t* txt_e;
     //texture for west wall
     mlx_texture_t* txt_w;
-
+    //texture to draw
+    mlx_texture_t* txt;
     //raycasting
     //field of view
     float   fov;

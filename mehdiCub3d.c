@@ -139,6 +139,7 @@ int check_wall_at(t_data *param, double k, double l)
 	return (1);
 }
 
+
 void mouvements(t_data *pr)
 {
 	float	tmpx;
@@ -351,7 +352,7 @@ void draw_strip(t_data* data, int ray_x, double wall_hight,int x_offset, uint32_
 	mlx_texture_t* tex;
 	float wall_strip_height;
 	wall_strip_height = wall_hight;
-	tex = data->txt_n;
+	tex = data->txt;
 	int begin  = (data->win_h/2)- (wall_hight/2);
 	int ray_y = 0;
 	// if(begin < 0)
@@ -372,11 +373,12 @@ void draw_strip(t_data* data, int ray_x, double wall_hight,int x_offset, uint32_
 		{
 			int y_offset;
 			int distance_from_top = ray_y + (wall_strip_height / 2) - ((float)data->win_h / 2);
-			y_offset = distance_from_top * ((float)data->txt_n->height / wall_hight);
+			y_offset = distance_from_top * ((float)tex->height / wall_hight);
 			y_offset = abs(y_offset);
-
-			color = (tex->pixels[(y_offset*data->txt_n->width*4) + (x_offset * 4)+0]<< 24) + (tex->pixels[(y_offset*data->txt_n->width*4) + (x_offset * 4)+1]<< 16) +(tex->pixels[(y_offset*data->txt_n->width*4) + (x_offset * 4)+2]<< 8) + (tex->pixels[(y_offset*data->txt_n->width*4) + (x_offset * 4)+3]);
-			// color = (uint32_t)tex->pixels[((y_offset*data->txt_n->width*4) + (x_offset * 4)+0)];
+			color = (tex->pixels[(y_offset*tex->width*4) + (x_offset * 4)+0]<< 24)
+			 + (tex->pixels[(y_offset*tex->width*4) + (x_offset * 4)+1]<< 16) +
+			 (tex->pixels[(y_offset*tex->width*4) + (x_offset * 4)+2]<< 8) + (tex->pixels[(y_offset*tex->width*4) +
+			 (x_offset * 4)+3]);
 			mlx_put_pixel(data->mlx_im, ray_x, ray_y, color);
 		}
 		ray_y++;
@@ -411,41 +413,47 @@ void wall_projection(t_data *data)
 		verticall(data, left_angle, &wall);
 		if(wall.horz_distance < wall.vert_distance || (wall.horz_distance == wall.vert_distance && test == false))
 		{
+			if(wall.horz_y > data->ppos_y)
+			{
+				wall.direction = NORTH;
+				data->txt = data->txt_n;
+			}
+			else
+			{
+				wall.direction = SOUTH;
+				data->txt = data->txt_s;
+			}
 			test = false;
 			double rayDistance = wall.horz_distance *cos(data->p_angle - left_angle);
 			double distanceToProjPlan = (data->win_w / 2) * tan(data->fov/2);
 			double wallHeight = (data->sq_dim / rayDistance) * distanceToProjPlan;
-			int x_offset = (data->txt_n->width / data->sq_dim ) * wall.horz_x % data->sq_dim;//TODO: WHY INT CASTING
+			int x_offset = ((float)data->txt->width / data->sq_dim) * (wall.horz_x % data->sq_dim);//TODO: WHY INT CASTING
+			// printf("x_offset = %d\n", x_offset);
 			// test if the wall is facing left or right so we can set wall.direction to NORTH or SOUTH
-			if(wall.horz_distance < wall.vert_distance)
-			{
-				if(wall.horz_y > data->ppos_y)
-				{
-					wall.direction = NORTH;
-				}
-				else
-					wall.direction = SOUTH;
-			}
 			draw_strip(data, i, wallHeight, x_offset, 0xff0000ff);
 		}
 		else if(wall.horz_distance > wall.vert_distance || (wall.horz_distance == wall.vert_distance && test == true))
 		{
+				if(wall.vert_x > data->ppos_x)
+				{
+					wall.direction = EAST;
+					data->txt = data->txt_e;
+				}
+				else
+				{
+					wall.direction = WEST;
+					data->txt = data->txt_w;	
+				}
 			test = true;
 			double rayDistance = wall.vert_distance *cos(data->p_angle - left_angle);
 			double distanceToProjPlan = (data->win_w / 2) * tan(data->fov/2);
 			double wallHeight = (data->sq_dim / rayDistance) * distanceToProjPlan;
-			int x_offset =(data->txt_n->width / data->sq_dim ) * wall.vert_y % data->sq_dim;
-			// printf("x_offset = %d\n", x_offset);
+			int x_offset = ((float)data->txt->width / data->sq_dim ) *( wall.vert_y % data->sq_dim);
+			// printf("y_offset = %d\n", x_offset);
+			// print tx width / sq_dim = value print value
+			// printf("txt_n->width = %d\n", data->txt_n->width);
+			//print the revers of the value 
 			//test if the wall is facing up or down so we can set wall.direction to EAST or WEST
-			if(wall.vert_distance < wall.horz_distance)
-			{
-				if(wall.vert_x > data->ppos_x)
-				{
-					wall.direction = EAST;
-				}
-				else
-					wall.direction = WEST;
-			}
 			draw_strip(data, i, wallHeight, x_offset, 0x00ff00ff);
 		}
 		i++;
@@ -530,7 +538,7 @@ void vue_angle(t_data *param)
 }
 void initialize_data(t_data* data)
 {
-    data->sq_dim = 500;
+    data->sq_dim = 250;
 	data->mini_scale = 0.15;
 	data->p_rad = 8;
 	data->p_speed = 4;
@@ -538,16 +546,16 @@ void initialize_data(t_data* data)
 	data->fov = 60*(M_PI / 180);
 	data->win_w = 1600;
     data->win_h = 800;
-	printf("datawidth = %d\n", data->width);
-	printf("dataheight = %d\n", data->height);
+	data->txt_e = mlx_load_png("./pics/wood.png");
+	data->txt_w = mlx_load_png("./pics/greystone.png");
+	data->txt_s = mlx_load_png("./pics/eagle.png");
+	data->txt_s = mlx_load_png("eboulhou.png");
+	data->txt_n = mlx_load_png("./pics/redbrick.png");
+	// data->txt_n = mlx_load_png("./pics/redbrick.png");
+	//TODO: check if the textures are loaded
 	data->width =(data->width - 1) * data->sq_dim;
 	data->height = (data->height - 1) * data->sq_dim;
 	data->num_rays = data->win_w;
-	data->txt_n = mlx_load_png("eboulhou.png");
-
-	// mlx_image_t *img = mlx_texture_to_image(data->mlx_in, data->txt_n);
-	// mlx_resize_image(img, data->sq_dim, data->sq_dim);
-
 }
 
 int main(int ac, char **av)

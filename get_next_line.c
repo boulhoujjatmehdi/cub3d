@@ -6,7 +6,7 @@
 /*   By: rarraji <rarraji@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/11/01 12:41:54 by rarraji           #+#    #+#             */
-/*   Updated: 2023/09/18 09:28:56 by rarraji          ###   ########.fr       */
+/*   Updated: 2023/10/11 20:01:46 by rarraji          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -31,8 +31,8 @@ char	*read_line(int fd, char *str)
 			return (NULL);
 		}
 		s1[i] = '\0';
-		str = ft_strjoin(str, s1);
-		if (ft_strchr(str, '\n'))
+		str = ft_strjoin1(str, s1);
+		if (ft_strchr1(str, '\n'))
 			break ;
 	}
 	free(s1);
@@ -50,7 +50,7 @@ char	*p1_line(char *str)
 		return (NULL);
 	while (str[i] != '\n' && str[i])
 		i++;
-	line = ft_substr(str, 0, i + 1);
+	line = ft_substr1(str, 0, i + 1);
 	return (line);
 }
 // -----------------------------------------------//
@@ -68,7 +68,7 @@ char	*last_line(char *str)
 	}
 	while (str[i] != '\n' && str[i])
 		i++;
-	line = ft_substr(str, i + 1, ft_strlen(str) - i);
+	line = ft_substr1(str, i + 1, ft_strlen1(str) - i);
 	free(str);
 	return (line);
 }
