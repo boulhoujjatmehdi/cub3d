@@ -198,127 +198,104 @@ void normalize_angle(double *angle)
 	// printf("p_angle (%f) - tmp(%d) == tmp2(%f)\n",data->p_angle , tmp ,  data->p_angle);
 
 }
-void horizontal(t_data* data, double ray_angle, t_wall* wall)
+
+//function to get tha direction of the ray
+void set_ray_direction(t_ray *ray, double ray_angle)
 {
-	// float x_inters;
-	// float y_inters;
-	float x_steps;
-	float y_steps;
-	int facing_up;
-	int facing_left;
-	float next_touch_x;
-	float next_touch_y;
-	float check_x;
-	float check_y;
+	ray->is_up = ray->is_left = 1;
+	if(ray_angle < M_PI_2 || ray_angle > M_PI_2 * 3)
+		ray->is_left = 0;
+	if(ray_angle >= 0 && ray_angle < M_PI)
+		ray->is_up = 0;
+}
+//function to get y and x intersections of the ray with the grid
+void set_horz_intersections(t_data* data, t_ray* ray, double ray_angle)
+{
+	ray->y_inter = floor(data->ppos_y / data->sq_dim) * data->sq_dim;
+	if(!ray->is_up)
+		ray->y_inter += data->sq_dim;
+	ray->x_inter = (ray->y_inter - data->ppos_y)/ tan(ray_angle);
+	ray->x_inter += data->ppos_x;
+	ray->y_stp = data->sq_dim;
+	if(ray->is_up)
+		ray->y_stp *= -1;
+	ray->x_stp = data->sq_dim / tan(ray_angle);
+	if((ray->is_left && ray->x_stp > 0)||(!ray->is_left && ray->x_stp < 0))
+		ray->x_stp *= -1;
+	ray->next_touch_x = ray->x_inter;
+	ray->next_touch_y = ray->y_inter;
+}
+
+void set_vert_intersections(t_data* data, t_ray* ray, double ray_angle)
+{
+	ray->x_inter = floor(data->ppos_x / data->sq_dim) * data->sq_dim;
+	if(!ray->is_left)
+		ray->x_inter += data->sq_dim;
+	ray->y_inter =data->ppos_y + (ray->x_inter - data->ppos_x) * tan(ray_angle);
+	ray->x_stp = data->sq_dim;
+	if(ray->is_left)
+		ray->x_stp *= -1;
+	ray->y_stp = data->sq_dim * tan(ray_angle);
+	if((ray->is_up && ray->y_stp > 0)||(!ray->is_up && ray->y_stp < 0))
+		ray->y_stp *= -1;
+	ray->next_touch_x = ray->x_inter;
+	ray->next_touch_y = ray->y_inter;
+}
+
+void horizontal(t_data* data, double ray_angle, t_wall* wall)
+{	
 	t_ray ray;
 
-	facing_up = facing_left = 1;
-	if(ray_angle < M_PI_2 || ray_angle > M_PI_2 * 3)
-		facing_left = 0;
-	if(ray_angle >= 0 && ray_angle < M_PI)
-		facing_up = 0;
-	ray.y_inter = floor(data->ppos_y / data->sq_dim) * data->sq_dim;
-	if(!facing_up)
-		ray.y_inter += data->sq_dim;
-	ray.x_inter = (ray.y_inter - data->ppos_y)/ tan(ray_angle);
-	ray.x_inter += data->ppos_x;
-	y_steps = data->sq_dim;
-	if(facing_up)
-		y_steps *= -1;
-	x_steps = data->sq_dim / tan(ray_angle);
-	if((facing_left && x_steps > 0)||(!facing_left && x_steps < 0))
-		x_steps *= -1;
-	next_touch_x = ray.x_inter;
-	next_touch_y = ray.y_inter;
+	ft_bzero(&ray, sizeof(t_ray));
+	set_ray_direction(&ray, ray_angle);
+	set_horz_intersections(data, &ray, ray_angle);
 	wall->horz_x = data->ppos_x;
 	wall->horz_y = data->ppos_y;
-	wall->horz_distance = INT32_MAX;
-	while(next_touch_x >= 0 && next_touch_x <= (data->width) && next_touch_y >=0 && next_touch_y <= data->height)
+	while(ray.next_touch_x >= 0 && ray.next_touch_x <= data->width &&
+		ray.next_touch_y >=0 && ray.next_touch_y <= data->height)
 	{
-		check_x = next_touch_x;
-		check_y = next_touch_y + (facing_up? -1: 0);
-		if(check_wall_at(data, check_y, check_x) == false)
+		ray.check_x = ray.next_touch_x;
+		ray.check_y = ray.next_touch_y + (ray.is_up? -1: 0);
+		if(check_wall_at(data, ray.check_y, ray.check_x) == false)
 		{
 			wall->horz_found_wall = true;
-			wall->horz_x = next_touch_x;
-			wall->horz_y  = next_touch_y; 
-			wall->horz_distance = sqrt((wall->horz_x - data->ppos_x) * (wall->horz_x - data->ppos_x)+(wall->horz_y - data->ppos_y)* (wall->horz_y - data->ppos_y));
+			wall->horz_x = ray.next_touch_x;
+			wall->horz_y  = ray.next_touch_y;
 			break;
 		}
 		else
 		{
-			next_touch_x += x_steps;
-			next_touch_y += y_steps;
+			ray.next_touch_x += ray.x_stp ;
+			ray.next_touch_y += ray.y_stp;
 		}
 	}
 }
 
 void verticall(t_data* data, double ray_angle, t_wall* wall)
 {
-	float x_inters;
-	float y_inters;
-	float x_steps;
-	float y_steps;
-	int facing_up;
-	int facing_left;
+	t_ray ray;
 
-	facing_up = facing_left = 1;
-	if(ray_angle < M_PI_2 || ray_angle > M_PI_2 * 3)
-		facing_left = 0;
-	if(ray_angle >= 0 && ray_angle < M_PI)
-		facing_up = 0;
-
-	//finding y intersection 
-	x_inters = floor(data->ppos_x / data->sq_dim) * data->sq_dim;
-	if(!facing_left)
-		x_inters += data->sq_dim;
-
-	//finding x intersection
-	y_inters =data->ppos_y + (x_inters - data->ppos_x) * tan(ray_angle);
-
-
-	//calculate the increment x_step and y_step
-	x_steps = data->sq_dim;
-	if(facing_left)
-		x_steps *= -1;
-
-	y_steps = data->sq_dim * tan(ray_angle);
-	if((facing_up && y_steps > 0)||(!facing_up && y_steps < 0))
-		y_steps *= -1;
-
-	//--------------------------
-
-
-
-
-	float next_touch_x;
-	float next_touch_y;
-	next_touch_x = x_inters;
-	next_touch_y = y_inters;
-	
+	ft_bzero(&ray, sizeof(t_ray));
+	set_ray_direction(&ray, ray_angle);
+	set_vert_intersections(data, &ray, ray_angle);
 	wall->vert_x = data->ppos_x;
 	wall->vert_y = data->ppos_y;
-
-			wall->vert_distance = INT32_MAX;
-	// printf("%d",data->width);
-	// exit(0);
-	while(next_touch_x >= 0 && next_touch_x <= data->width && next_touch_y >=0 && next_touch_y <= data->height)
+	while(ray.next_touch_x >= 0 && ray.next_touch_x <= data->width &&
+		ray.next_touch_y >=0 && ray.next_touch_y <= data->height)
 	{
-
-		float check_x = next_touch_x + (facing_left? -1:0);
-		float check_y = next_touch_y;
-		if(check_wall_at(data, check_y, check_x) == false)
+		ray.check_x = ray.next_touch_x + (ray.is_left? -1:0);
+		ray.check_y = ray.next_touch_y;
+		if(check_wall_at(data, ray.check_y, ray.check_x) == false)
 		{
 			wall->vert_found_wall = true;
-			wall->vert_x = next_touch_x;
-			wall->vert_y  = next_touch_y;
-			wall->vert_distance = sqrt((wall->vert_x - data->ppos_x) * (wall->vert_x - data->ppos_x)+(wall->vert_y - data->ppos_y)* (wall->vert_y - data->ppos_y));
+			wall->vert_x = ray.next_touch_x;
+			wall->vert_y  = ray.next_touch_y;
 			break;
 		}
 		else
 		{
-			next_touch_x += x_steps;
-			next_touch_y += y_steps;
+			ray.next_touch_x += ray.x_stp;
+			ray.next_touch_y += ray.y_stp;
 		}
 	}
 }
@@ -383,6 +360,25 @@ void draw_strip(t_data* data, int ray_x, double wall_hight,int x_offset, uint32_
 	x_offset = 0;
 
 }
+//functions to count the distance between the player and the wall
+void set_distance(t_data* data, t_wall* wall)
+{
+
+	wall->vert_distance = (data->height * data->width) * data->sq_dim;
+	wall->horz_distance = (data->height * data->width) * data->sq_dim;
+	if(wall->vert_found_wall)
+	{
+		wall->vert_distance = sqrt((wall->vert_x - data->ppos_x) *
+			(wall->vert_x - data->ppos_x)+(wall->vert_y - data->ppos_y) *
+			(wall->vert_y - data->ppos_y));
+	}
+	if(wall->horz_found_wall)
+	{
+		wall->horz_distance = sqrt ((wall->horz_x - data->ppos_x) * 
+			(wall->horz_x - data->ppos_x) + (wall->horz_y - data->ppos_y) *
+			(wall->horz_y - data->ppos_y));
+	}
+}
 void wall_projection(t_data *data)
 {
 	int i;
@@ -402,6 +398,7 @@ void wall_projection(t_data *data)
 		wall.horz_found_wall = wall.vert_found_wall = false;
 		horizontal(data, left_angle, &wall);
 		verticall(data, left_angle, &wall);
+		set_distance(data, &wall);
 		if(wall.horz_distance < wall.vert_distance || (wall.horz_distance == wall.vert_distance && test == false))
 		{
 			if(wall.horz_y > data->ppos_y)

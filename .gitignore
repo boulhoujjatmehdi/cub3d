@@ -3,3 +3,4 @@ test.c
 *.dSYM
 *.o
 main_temp.c
+*.a

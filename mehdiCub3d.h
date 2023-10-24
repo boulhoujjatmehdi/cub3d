@@ -96,9 +96,9 @@ typedef struct s_ray
     //y step
 	float y_stp;
     //ray direction
-	int facing_up;
+	int is_up;
     //ray direction
-	int facing_left;
+	int is_left;
     //x intersection + x step
 	float next_touch_x;
     //y intersection + y step
