@@ -6,7 +6,7 @@
 # include <fcntl.h>
 # include <math.h>
 # include "MLX42/Include/MLX42.h"
-
+# include "libft/libft.h"
 #include "stdio.h"
 
 
@@ -70,6 +70,11 @@ typedef struct s_data
     mlx_texture_t* txt_w;
     //texture to draw
     mlx_texture_t* txt;
+    //floor color
+    uint32_t floor_color;
+    //ceiling color
+    uint32_t ceiling_color;
+
     //raycasting
     //field of view
     float   fov;
@@ -79,6 +84,31 @@ typedef struct s_data
     float   mini_scale;
 
 }t_data;
+
+typedef struct s_ray
+{
+    //x coordinate of the intersection
+	float x_inter;
+    //y coordinate of the intersection
+	float y_inter;
+    //x step
+	float x_stp;
+    //y step
+	float y_stp;
+    //ray direction
+	int facing_up;
+    //ray direction
+	int facing_left;
+    //x intersection + x step
+	float next_touch_x;
+    //y intersection + y step
+	float next_touch_y;
+    //variable to check if the ray hit a wall
+	float check_x;
+    //variable to check if the ray hit a wall
+	float check_y;
+}t_ray;
+
 
 
 #endif

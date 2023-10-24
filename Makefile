@@ -42,7 +42,7 @@ all: $(NAME)
 
 $(NAME): $(OBJ) $(LIBFT)
 	@printf "$(YELLOW) Compiling $(NAME)... \n"
-	@ $(CC) $(OBJ) $(LIBFT) $(MLX) $(GLFW) -fsanitize=address -o $(NAME)
+	@ $(CC) $(OBJ) $(LIBFT) $(MLX) $(GLFW)  -o $(NAME) # -fsanitize=address
 	@printf "$(GREEN) Executable ready.\n"
 
 %.o : %.c

@@ -200,49 +200,43 @@ void normalize_angle(double *angle)
 }
 void horizontal(t_data* data, double ray_angle, t_wall* wall)
 {
-	float x_inters;
-	float y_inters;
+	// float x_inters;
+	// float y_inters;
 	float x_steps;
 	float y_steps;
 	int facing_up;
 	int facing_left;
+	float next_touch_x;
+	float next_touch_y;
+	float check_x;
+	float check_y;
+	t_ray ray;
 
 	facing_up = facing_left = 1;
 	if(ray_angle < M_PI_2 || ray_angle > M_PI_2 * 3)
 		facing_left = 0;
 	if(ray_angle >= 0 && ray_angle < M_PI)
 		facing_up = 0;
-	//finding y intersection 
-	y_inters = floor(data->ppos_y / data->sq_dim) * data->sq_dim;
+	ray.y_inter = floor(data->ppos_y / data->sq_dim) * data->sq_dim;
 	if(!facing_up)
-		y_inters += data->sq_dim;
-	//finding x intersection
-	x_inters = (y_inters - data->ppos_y)/ tan(ray_angle);
-	x_inters += data->ppos_x;
-
-	//calculate the increment x_step and y_step
+		ray.y_inter += data->sq_dim;
+	ray.x_inter = (ray.y_inter - data->ppos_y)/ tan(ray_angle);
+	ray.x_inter += data->ppos_x;
 	y_steps = data->sq_dim;
 	if(facing_up)
 		y_steps *= -1;
-
 	x_steps = data->sq_dim / tan(ray_angle);
 	if((facing_left && x_steps > 0)||(!facing_left && x_steps < 0))
 		x_steps *= -1;
-
-	//--------------------------
-	float next_touch_x;
-	float next_touch_y;
-	next_touch_x = x_inters;
-	next_touch_y = y_inters;
-	
+	next_touch_x = ray.x_inter;
+	next_touch_y = ray.y_inter;
 	wall->horz_x = data->ppos_x;
 	wall->horz_y = data->ppos_y;
 	wall->horz_distance = INT32_MAX;
 	while(next_touch_x >= 0 && next_touch_x <= (data->width) && next_touch_y >=0 && next_touch_y <= data->height)
 	{
-		float check_x = next_touch_x;
-		float check_y = next_touch_y + (facing_up? -1: 0);
-
+		check_x = next_touch_x;
+		check_y = next_touch_y + (facing_up? -1: 0);
 		if(check_wall_at(data, check_y, check_x) == false)
 		{
 			wall->horz_found_wall = true;
@@ -329,10 +323,7 @@ void verticall(t_data* data, double ray_angle, t_wall* wall)
 	}
 }
 
-int32_t ft_pixel(int32_t r, int32_t g, int32_t b, int32_t a)
-{
-    return (r << 24 | g << 16 | b << 8 | a);
-}
+
 
 void render_image(t_data* data)
 {
@@ -536,6 +527,34 @@ void vue_angle(t_data *param)
 		y++;
 	}
 }
+void free_data(t_data* data, int exit_code)
+{
+	int i;
+	i = 0;
+	if(data->mat == NULL)
+		return ;
+	while(data->mat[i])
+	{
+		free(data->mat[i]);
+		i++;
+	}
+	free(data->mat);
+
+	if(data->txt_n)
+		mlx_delete_texture(data->txt_n);
+	if(data->txt_s)	
+		mlx_delete_texture(data->txt_s);
+	if(data->txt_e)
+		mlx_delete_texture(data->txt_e);
+	if(data->txt_w)
+		mlx_delete_texture(data->txt_w);
+	if(data->mlx_im)
+		mlx_delete_image(data->mlx_in,data->mlx_im);
+	data = NULL;
+	pause();
+	exit(exit_code);
+}
+#include <string.h>
 void initialize_data(t_data* data)
 {
     data->sq_dim = 250;
@@ -547,12 +566,12 @@ void initialize_data(t_data* data)
 	data->win_w = 1600;
     data->win_h = 800;
 	data->txt_e = mlx_load_png("./pics/wood.png");
+
 	data->txt_w = mlx_load_png("./pics/greystone.png");
-	data->txt_s = mlx_load_png("./pics/eagle.png");
-	data->txt_s = mlx_load_png("eboulhou.png");
 	data->txt_n = mlx_load_png("./pics/redbrick.png");
-	// data->txt_n = mlx_load_png("./pics/redbrick.png");
-	//TODO: check if the textures are loaded
+	data->txt_s = mlx_load_png("eboulhou.png");
+	if(!data->txt_e || !data->txt_w || !data->txt_n || !data->txt_s)
+		free_data(data, 1);
 	data->width =(data->width - 1) * data->sq_dim;
 	data->height = (data->height - 1) * data->sq_dim;
 	data->num_rays = data->win_w;
@@ -562,6 +581,7 @@ int main(int ac, char **av)
 {
     t_data data;
 
+	ft_bzero(&data, sizeof(t_data));
     if(ac!= 2)
         return 1;
 	lire_map(&data, av[1]);
@@ -569,8 +589,11 @@ int main(int ac, char **av)
 	initialize_data(&data);
     vue_angle(&data);
     data.mlx_in = mlx_init(data.win_w, data.win_h, "cub3D", 0);
+	if(!data.mlx_in)
+		free_data(&data, 1);
 	data.mlx_im = mlx_new_image(data.mlx_in, data.win_w, data.win_h);
-
+	if(!data.mlx_im)
+		free_data(&data, 1);
     mlx_image_to_window(data.mlx_in, data.mlx_im, 0, 0);
     mlx_loop_hook(data.mlx_in, draw, &data);
     mlx_loop(data.mlx_in);
