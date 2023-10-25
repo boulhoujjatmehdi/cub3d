@@ -6,7 +6,7 @@
 /*   By: eboulhou <eboulhou@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/10/24 18:23:06 by eboulhou          #+#    #+#             */
-/*   Updated: 2023/10/24 18:40:02 by eboulhou         ###   ########.fr       */
+/*   Updated: 2023/10/25 13:21:14 by eboulhou         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -144,7 +144,7 @@ void	mouvements(t_data *pr)
 		exit(0);
 }
 
-void	normalize_angle(double *angle)
+void	normalize_angle(float *angle)
 {
 	int	tmp;
 
@@ -257,7 +257,7 @@ void verticall(t_data* data, double ray_angle, t_wall* wall)
 	}
 }
 
-void	draw_strip(t_data* data, int ray_x, double wall_hight,int x_offset, uint32_t color)
+void	draw_strip(t_data* data, int ray_x, double wall_hight,int x_offset)
 {
 	mlx_texture_t	*tex;
 	
@@ -267,6 +267,7 @@ void	draw_strip(t_data* data, int ray_x, double wall_hight,int x_offset, uint32_
 	int				i;
 	int				y_offset;
 	int				distance_from_top;
+	int				color;
 
 	wall_strip_height = wall_hight;
 	tex = data->txt;
@@ -303,6 +304,7 @@ void	draw_strip(t_data* data, int ray_x, double wall_hight,int x_offset, uint32_
 	x_offset = 0;
 
 }
+
 //functions to count the distance between the player and the wall
 void set_distance(t_data* data, t_wall* wall)
 {
@@ -322,113 +324,91 @@ void set_distance(t_data* data, t_wall* wall)
 			(wall->horz_y - data->ppos_y));
 	}
 }
+//function to project horizontal rays
+int  project_horz_ray(t_data *data, t_wall *wall, t_ray *ray)
+{
+	if (wall->horz_distance < wall->vert_distance 
+		|| (wall->horz_distance == wall->vert_distance && ray->test == false))
+	{
+		if (wall->horz_y < data->ppos_y)
+		{
+			wall->direction = NORTH;
+			data->txt = data->txt_n;
+		}
+		else
+		{
+			wall->direction = SOUTH;
+			data->txt = data->txt_s;
+		}
+		ray->test = false;
+		ray->lenght = wall->horz_distance *cos(data->p_angle - ray->angle);
+		ray->dist_proj_plan = (data->win_w / 2) * tan(data->fov/2);
+		ray->wall_height = (data->sq_dim / ray->lenght) * ray->dist_proj_plan;
+		ray->x_offset = ((float)data->txt->width / data->sq_dim)
+			* (wall->horz_x % data->sq_dim);
+		draw_strip(data, ray->i, ray->wall_height, ray->x_offset);
+		return 1;
+	}
+	return (0);
+}
+//function to project vertical rays
+int project_vert_ray(t_data *data, t_wall *wall, t_ray *ray)
+{
+	if (wall->horz_distance > wall->vert_distance
+			|| (wall->horz_distance == wall->vert_distance && ray->test == true))
+	{
+		if (wall->vert_x < data->ppos_x)
+		{
+			wall->direction = EAST;
+			data->txt = data->txt_e;
+		}
+		else
+		{
+			wall->direction = WEST;
+			data->txt = data->txt_w;	
+		}
+		ray->test = true;
+		ray->lenght = wall->vert_distance *cos(data->p_angle - ray->angle);
+		ray->dist_proj_plan = (data->win_w / 2) * tan(data->fov/2);
+		ray->wall_height = (data->sq_dim / ray->lenght) * ray->dist_proj_plan;
+		ray->x_offset = ((float)data->txt->width / data->sq_dim)
+			*( wall->vert_y % data->sq_dim);
+		draw_strip(data, ray->i, ray->wall_height, ray->x_offset);
+		return (1);
+	}
+	return (0);
+}
 
 void wall_projection(t_data *data)
 {
-	int i;
-	double left_angle;
-	float increase;
 	t_wall wall;
+	t_ray ray;
 
-	increase = fabs((float)data->fov/ (float)data->num_rays);
-	left_angle = data->p_angle - (data->fov/2);
-	i = 0;
-	bool test;
-	test = false;
-	while (i < data->num_rays)
+	ft_bzero(&ray, sizeof(t_ray));
+	ray.step = fabs((float)data->fov/ (float)data->num_rays);
+	ray.angle = data->p_angle - (data->fov/2);
+	while (ray.i < data->num_rays)
 	{
-		normalize_angle(&left_angle);
+		normalize_angle(&ray.angle);
 		normalize_angle(&data->p_angle);
 		wall.horz_found_wall = wall.vert_found_wall = false;
-		horizontal(data, left_angle, &wall);
-		verticall(data, left_angle, &wall);
+		horizontal(data, ray.angle, &wall);
+		verticall(data, ray.angle, &wall);
 		set_distance(data, &wall);
-		if (wall.horz_distance < wall.vert_distance || (wall.horz_distance == wall.vert_distance && test == false))
-		{
-			if (wall.horz_y > data->ppos_y)
-			{
-				wall.direction = NORTH;
-				data->txt = data->txt_n;
-			}
-			else
-			{
-				wall.direction = SOUTH;
-				data->txt = data->txt_s;
-			}
-			test = false;
-			double rayDistance = wall.horz_distance *cos(data->p_angle - left_angle);
-			double distanceToProjPlan = (data->win_w / 2) * tan(data->fov/2);
-			double wallHeight = (data->sq_dim / rayDistance) * distanceToProjPlan;
-			int x_offset = ((float)data->txt->width / data->sq_dim) * (wall.horz_x % data->sq_dim);
-			draw_strip(data, i, wallHeight, x_offset, 0xff0000ff);
-		}
-		else if (wall.horz_distance > wall.vert_distance || (wall.horz_distance == wall.vert_distance && test == true))
-		{
-				if (wall.vert_x > data->ppos_x)
-				{
-					wall.direction = EAST;
-					data->txt = data->txt_e;
-				}
-				else
-				{
-					wall.direction = WEST;
-					data->txt = data->txt_w;	
-				}
-			test = true;
-			double rayDistance = wall.vert_distance *cos(data->p_angle - left_angle);
-			double distanceToProjPlan = (data->win_w / 2) * tan(data->fov/2);
-			double wallHeight = (data->sq_dim / rayDistance) * distanceToProjPlan;
-			int x_offset = ((float)data->txt->width / data->sq_dim ) *( wall.vert_y % data->sq_dim);
-			draw_strip(data, i, wallHeight, x_offset, 0x00ff00ff);
-		}
-		i++;
-		left_angle += increase;
+		project_horz_ray(data, &wall, &ray);
+		project_vert_ray(data, &wall, &ray);
+		ray.i++;
+		ray.angle += ray.step;
 	}
 }
-// void ray_casting(t_data *data)
-// {
-// 	int i;
-// 	double left_angle;
-// 	float increase;
-// 	t_wall wall;
-
-// 	increase = fabs((float)data->fov/ (float)data->num_rays);
-// 	left_angle = data->p_angle - (data->fov/2);
-// 	i = 0;
-// 	while (i < data->num_rays)
-// 	{
-// 		normalize_angle(&left_angle);
-// 		wall.horz_found_wall = wall.vert_found_wall = false;
-// 		horizontal(data, left_angle, &wall);
-// 		verticall(data, left_angle, &wall);
-
-// 			if (wall.horz_distance < wall.vert_distance)
-// 				draw_line(data, data->ppos_x, data->ppos_y, wall.horz_x, wall.horz_y, 0x0000ff00ff);
-// 			else if (wall.horz_distance > wall.vert_distance)
-// 				draw_line(data, data->ppos_x, data->ppos_y, wall.vert_x, wall.vert_y, 0x000000ffff);
-// 		i++;
-// 		left_angle += increase;
-// 	}
-	
-// }
-
 
 void draw(void *dt)
 {    
     t_data* data;
 
     data = (t_data*)dt; 
-    // draw_map(data);
-    // draw_player(data);
     mouvements(data);
-	// printf("cos  = %f , sin = %f\n", cosf(data->p_angle), sinf(data->p_angle));
-	
-	// ray_casting(data);
 	wall_projection(data);
-
-	// render_image(data);
-	// draw_line(data, data->ppos_x, data->ppos_y, (data->ppos_x+cosf(data->p_angle)*15), (data->ppos_y+sinf(data->p_angle)*15), 0x00000000ff);
-
 }
 
 void vue_angle(t_data *param)
@@ -485,25 +465,22 @@ void free_data(t_data* data, int exit_code)
 	if (data->mlx_im)
 		mlx_delete_image(data->mlx_in,data->mlx_im);
 	data = NULL;
-	pause();
 	exit(exit_code);
 }
-#include <string.h>
+
 void initialize_data(t_data* data)
 {
-    data->sq_dim = 250;
-	data->mini_scale = 0.15;
-	data->p_rad = 8;
+    data->sq_dim = 100;
 	data->p_speed = 4;
+	data->p_rad = data->p_speed + 1;
 	data->rotation_angle = 1;
 	data->fov = 60*(M_PI / 180);
 	data->win_w = 1600;
     data->win_h = 800;
 	data->txt_e = mlx_load_png("./pics/wood.png");
-
 	data->txt_w = mlx_load_png("./pics/greystone.png");
 	data->txt_n = mlx_load_png("./pics/redbrick.png");
-	data->txt_s = mlx_load_png("eboulhou.png");
+	data->txt_s = mlx_load_png("./pics/colorstone.png");
 	if (!data->txt_e || !data->txt_w || !data->txt_n || !data->txt_s)
 		free_data(data, 1);
 	data->width =(data->width - 1) * data->sq_dim;

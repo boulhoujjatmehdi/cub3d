@@ -20,12 +20,12 @@ char	*get_next_line(int fd);
 
 typedef struct s_wall
 {
-    float horz_found_wall;
+    int horz_found_wall;
     float horz_distance;
     int horz_x;
     int horz_y;
 
-    float vert_found_wall;
+    int vert_found_wall;
     float vert_distance;
     int vert_x;
     int vert_y;
@@ -58,7 +58,7 @@ typedef struct s_data
     //player position y
     float   ppos_y;
     //player view angle
-    double  p_angle;
+    float  p_angle;
 
     //texture for north wall
     mlx_texture_t* txt_n;
@@ -107,6 +107,29 @@ typedef struct s_ray
 	float check_x;
     //variable to check if the ray hit a wall
 	float check_y;
+    /*OOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOO*/
+    //iterator i 
+    int i;
+    //iterator j
+    int j;
+    //ray angle
+    float angle;
+    //ray step
+    float step;
+    //ray test
+    bool test;
+    //ray lenght
+    float lenght;
+    //distance to projected plan
+    float dist_proj_plan;
+    //wall height
+    float wall_height;
+    //wall x_offset
+    float x_offset;
+    //wall y_offset
+    float y_offset;
+
+
 }t_ray;
 
 
