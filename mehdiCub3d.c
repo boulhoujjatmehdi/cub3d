@@ -6,7 +6,7 @@
 /*   By: eboulhou <eboulhou@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/10/24 18:23:06 by eboulhou          #+#    #+#             */
-/*   Updated: 2023/10/25 13:21:14 by eboulhou         ###   ########.fr       */
+/*   Updated: 2023/10/25 15:50:46 by eboulhou         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -133,9 +133,6 @@ void	move_player_left_right(t_data *pr)
 
 void	mouvements(t_data *pr)
 {
-	float	tmpx;
-	float	tmpy;
-
 	rotate_player(pr);
 	move_player_forward_backward(pr);
 	move_player_left_right(pr);
@@ -257,51 +254,49 @@ void verticall(t_data* data, double ray_angle, t_wall* wall)
 	}
 }
 
-void	draw_strip(t_data* data, int ray_x, double wall_hight,int x_offset)
+int get_color( mlx_texture_t *tex, int x, int y)
+{
+	uint8_t *pixels;
+	int color;
+	
+	
+	pixels = tex->pixels;
+	color  = (pixels[(y * tex->width * 4) + (4 * x) + 0]<< 24);
+	color += (pixels[(y * tex->width * 4) + (4 * x) + 1]<< 16);
+	color +=(pixels[(y * tex->width * 4) + (4 * x) + 2]<< 8);
+	color += (pixels[(y * tex->width * 4) +(4 * x) + 3]);
+	return (color);
+}
+
+void	draw_strip(t_data* data, t_ray *ray)
 {
 	mlx_texture_t	*tex;
-	
-	float			wall_strip_height;
-	int				begin;
-	int				ray_y;
-	int				i;
-	int				y_offset;
-	int				distance_from_top;
-	int				color;
+	t_draw			draw;
 
-	wall_strip_height = wall_hight;
+	draw.strip_height = ray->wall_height;
 	tex = data->txt;
-	begin = (data->win_h / 2) - (wall_hight / 2);
-	ray_y = 0;
-	while (ray_y < begin)
+	draw.y_0 = (data->win_h / 2) - (ray->wall_height / 2);
+	draw.y = 0;
+	while (draw.y < draw.y_0)
+		mlx_put_pixel(data->mlx_im, ray->i, draw.y++, data->ceiling_color);
+	draw.y = draw.y_0;
+	draw.i = draw.y_0;
+	while (draw.i++ < draw.y_0 + ray->wall_height)
 	{
-		mlx_put_pixel(data->mlx_im, ray_x, ray_y, 0x000000ff);
-		ray_y++;
-	}
-	ray_y = begin;
-	i = begin;
-	while (i++ < begin + wall_hight)
-	{
-		if (i < data->win_h && i > 0)
+		if (draw.i < data->win_h && draw.i > 0)
 		{
-			distance_from_top = ray_y + (wall_strip_height / 2) - ((float)data->win_h / 2);
-			y_offset = distance_from_top * ((float)tex->height / wall_hight);
-			y_offset = abs(y_offset);
-			color = (tex->pixels[(y_offset*tex->width*4) + (x_offset * 4)+0]<< 24)
-			 + (tex->pixels[(y_offset*tex->width*4) + (x_offset * 4)+1]<< 16) +
-			 (tex->pixels[(y_offset*tex->width*4) + (x_offset * 4)+2]<< 8) + (tex->pixels[(y_offset*tex->width*4) +
-			 (x_offset * 4)+3]);
-			mlx_put_pixel(data->mlx_im, ray_x, ray_y, color);
+			draw.top_dist = draw.y + (draw.strip_height / 2) - ((float)data->win_h / 2);
+			ray->y_offset = draw.top_dist * ((float)tex->height / ray->wall_height);
+			ray->y_offset = abs(ray->y_offset);
+			draw.color = get_color(tex, ray->x_offset, ray->y_offset);
+			mlx_put_pixel(data->mlx_im, ray->i, draw.y, draw.color);
 		}
-		ray_y++;
+		draw.y++;
 	}
+	while (draw.y < data->win_h)
+		mlx_put_pixel(data->mlx_im, ray->i, draw.y++, data->floor_color);
 
-	while (ray_y < data->win_h)
-	{
-		mlx_put_pixel(data->mlx_im, ray_x, ray_y, 0x7a776eff);
-		ray_y++;
-	}
-	x_offset = 0;
+	ray->x_offset = 0;
 
 }
 
@@ -346,11 +341,12 @@ int  project_horz_ray(t_data *data, t_wall *wall, t_ray *ray)
 		ray->wall_height = (data->sq_dim / ray->lenght) * ray->dist_proj_plan;
 		ray->x_offset = ((float)data->txt->width / data->sq_dim)
 			* (wall->horz_x % data->sq_dim);
-		draw_strip(data, ray->i, ray->wall_height, ray->x_offset);
+		draw_strip(data, ray);
 		return 1;
 	}
 	return (0);
 }
+
 //function to project vertical rays
 int project_vert_ray(t_data *data, t_wall *wall, t_ray *ray)
 {
@@ -373,7 +369,7 @@ int project_vert_ray(t_data *data, t_wall *wall, t_ray *ray)
 		ray->wall_height = (data->sq_dim / ray->lenght) * ray->dist_proj_plan;
 		ray->x_offset = ((float)data->txt->width / data->sq_dim)
 			*( wall->vert_y % data->sq_dim);
-		draw_strip(data, ray->i, ray->wall_height, ray->x_offset);
+		draw_strip(data, ray);
 		return (1);
 	}
 	return (0);
@@ -483,6 +479,9 @@ void initialize_data(t_data* data)
 	data->txt_s = mlx_load_png("./pics/colorstone.png");
 	if (!data->txt_e || !data->txt_w || !data->txt_n || !data->txt_s)
 		free_data(data, 1);
+
+	data->floor_color = 0x7a776eff;
+	data->ceiling_color = 0x000000ff;
 	data->width =(data->width - 1) * data->sq_dim;
 	data->height = (data->height - 1) * data->sq_dim;
 	data->num_rays = data->win_w;

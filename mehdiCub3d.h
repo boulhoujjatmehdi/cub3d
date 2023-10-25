@@ -125,12 +125,21 @@ typedef struct s_ray
     //wall height
     float wall_height;
     //wall x_offset
-    float x_offset;
+    int x_offset;
     //wall y_offset
-    float y_offset;
-
-
+    int y_offset;
 }t_ray;
+
+typedef struct s_draw
+{
+    float	strip_height;
+	int		y_0;
+	int		y;
+	int		i;
+	int		y_offset;
+	int		top_dist;
+	int		color;
+}t_draw;
 
 
 

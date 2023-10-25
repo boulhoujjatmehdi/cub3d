@@ -3,10 +3,10 @@
 #                                                         :::      ::::::::    #
 #    Makefile                                           :+:      :+:    :+:    #
 #                                                     +:+ +:+         +:+      #
-#    By: rarraji <rarraji@student.42.fr>            +#+  +:+       +#+         #
+#    By: eboulhou <eboulhou@student.42.fr>          +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2023/08/14 15:54:50 by rarraji           #+#    #+#              #
-#    Updated: 2023/09/18 22:47:05 by rarraji          ###   ########.fr        #
+#    Updated: 2023/10/25 15:51:02 by eboulhou         ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
@@ -34,6 +34,8 @@ RED = \033[0;31m
 GREEN = \033[0;32m
 YELLOW = \033[0;33m
 
+%.o : %.c
+	${CC} ${CFLAGS} -c $< -o $@
 
 run: all
 	@./CUB3D map.ber
@@ -45,8 +47,6 @@ $(NAME): $(OBJ) $(LIBFT)
 	@ $(CC) $(OBJ) $(LIBFT) $(MLX) $(GLFW)  -o $(NAME) # -fsanitize=address
 	@printf "$(GREEN) Executable ready.\n"
 
-%.o : %.c
-	${CC} ${CFLAGS} -c $< -o $@
 
 $(LIBFT):
 	make -C libft
