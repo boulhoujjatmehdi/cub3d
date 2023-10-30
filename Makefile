@@ -3,31 +3,32 @@
 #                                                         :::      ::::::::    #
 #    Makefile                                           :+:      :+:    :+:    #
 #                                                     +:+ +:+         +:+      #
-#    By: rarraji <rarraji@student.42.fr>            +#+  +:+       +#+         #
+#    By: eboulhou <eboulhou@student.42.fr>          +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2023/08/14 15:54:50 by rarraji           #+#    #+#              #
-#    Updated: 2023/09/18 22:47:05 by rarraji          ###   ########.fr        #
+#    Updated: 2023/10/30 12:26:22 by eboulhou         ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
 NAME	= CUB3D
 	
 CC		= cc
-FLAGS	= -Wall -Wextra -Werror -fsanitize=address -g
+FSAN   = -fsanitize=address -g
+FLAGS	= -Wall -Wextra -Werror $(FSAN)
 RM		= rm -rf
 SRC		= 	get_next_line_utils.c \
 			mehdiCub3d.c\
 			ft_printf.c\
 			get_next_line.c\
-			# parse.c
+			parse.c
 
 # 
-IMLX	     = -I MLX42/include
-MLX        = MLX42/build/libmlx42.a
-LIBFT			 = libft/libft.a
-FRAMEWORKS = -framework Cocoa -framework OpenGL -framework IOKit
-GLFW       = -Iinclude -lglfw -L"/goinfre/$(USER)/homebrew/opt/glfw/lib/"
-OBJ		= ${SRC:.c=.o}
+IMLX		= -I MLX42/include
+MLX			= MLX42/build/libmlx42.a
+LIBFT		= libft/libft.a
+FRAMEWORKS	= -framework Cocoa -framework OpenGL -framework IOKit
+GLFW       	= -Iinclude -lglfw -L"/goinfre/$(USER)/homebrew/opt/glfw/lib/"
+OBJ			= $(SRC:.c=.o)
 # 
 #Colors:
 RED = \033[0;31m
@@ -40,13 +41,13 @@ run: all
 
 all: $(NAME)
 
-$(NAME): $(OBJ) $(LIBFT)
+$(NAME): $(OBJ) $(LIBFT) 
 	@printf "$(YELLOW) Compiling $(NAME)... \n"
-	@ $(CC) $(OBJ) $(LIBFT) $(MLX) $(GLFW)  -o $(NAME) # -fsanitize=address
+	$(CC)  $(FSAN) $(OBJ) $(LIBFT) $(MLX) $(GLFW)  -o $(NAME)  
 	@printf "$(GREEN) Executable ready.\n"
 
 %.o : %.c
-	${CC} ${CFLAGS} -c $< -o $@
+	$(CC)  $(FSAN) -c $< -o $@ 
 
 $(LIBFT):
 	make -C libft

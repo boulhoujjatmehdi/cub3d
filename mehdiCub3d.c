@@ -6,11 +6,12 @@
 /*   By: eboulhou <eboulhou@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/10/24 18:23:06 by eboulhou          #+#    #+#             */
-/*   Updated: 2023/10/25 13:21:14 by eboulhou         ###   ########.fr       */
+/*   Updated: 2023/10/30 12:49:02 by eboulhou         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "mehdiCub3d.h"
+#include "cub3d.h"
 
 void	lire_map(t_data *data, char *av)
 {
@@ -65,6 +66,8 @@ void	len_mapp(t_data *data)
 	}
 }
 
+//function to check if there is a wall at the intersection
+//returns 0 if there is a wall, 1 if not
 int	check_wall_at(t_data *param, double k, double l)
 {
 	if (param->mat[(int)(k / param->sq_dim)][(int)(l / param->sq_dim)] == '1')
@@ -88,6 +91,21 @@ void	rotate_player(t_data *pr)
 }
 
 //function to move the player forward and backward
+//returns 1 if there is a wall, 0 if not
+int	check_move(t_data *pr, float yl, float xl)
+{
+	int	check;
+
+	check = 0;
+	if (check_wall_at(pr, yl, xl))
+		check++;
+	if (check_wall_at(pr, yl, pr->ppos_x) && check_wall_at(pr, pr->ppos_y, xl))
+		check ++;
+	if (check == 2)
+		return (1);
+	return (0);
+}
+
 void	move_player_forward_backward(t_data *pr)
 {
 	float	tmpx;
@@ -96,13 +114,13 @@ void	move_player_forward_backward(t_data *pr)
 	tmpx = cos(pr->p_angle) * pr->p_rad;
 	tmpy = sin(pr->p_angle) * pr->p_rad;
 	if (mlx_is_key_down(pr->mlx_in, MLX_KEY_W)
-		&& check_wall_at(pr, (pr->ppos_y + tmpy), (pr->ppos_x + tmpx)))
+		&& check_move(pr, (pr->ppos_y + tmpy), (pr->ppos_x + tmpx)))
 	{
 		pr->ppos_x += cos(pr->p_angle) * pr->p_speed;
 		pr->ppos_y += sin(pr->p_angle) * pr->p_speed;
 	}
 	if (mlx_is_key_down(pr->mlx_in, MLX_KEY_S)
-		&& check_wall_at(pr, (pr->ppos_y - tmpy), (pr->ppos_x - tmpx)))
+		&& check_move(pr, (pr->ppos_y - tmpy), (pr->ppos_x - tmpx)))
 	{
 		pr->ppos_x -= cos(pr->p_angle) * pr->p_speed;
 		pr->ppos_y -= sin(pr->p_angle) * pr->p_speed;
@@ -118,13 +136,13 @@ void	move_player_left_right(t_data *pr)
 	tmpx = cos(pr->p_angle + M_PI_2) * pr->p_rad;
 	tmpy = sin(pr->p_angle + M_PI_2) * pr->p_rad;
 	if (mlx_is_key_down(pr->mlx_in, MLX_KEY_A)
-		&& check_wall_at(pr, (pr->ppos_y - tmpy), (pr->ppos_x - tmpx)))
+		&& check_move(pr, (pr->ppos_y - tmpy), (pr->ppos_x - tmpx)))
 	{
 		pr->ppos_x -= cos(pr->p_angle + M_PI_2) * pr->p_speed;
 		pr->ppos_y -= sin(pr->p_angle + M_PI_2) * pr->p_speed;
 	}
 	if (mlx_is_key_down(pr->mlx_in, MLX_KEY_D)
-		&& check_wall_at(pr, (pr->ppos_y + tmpy), roundf(pr->ppos_x + tmpx)))
+		&& check_move(pr, (pr->ppos_y + tmpy), roundf(pr->ppos_x + tmpx)))
 	{
 		pr->ppos_x += cos(pr->p_angle + M_PI_2) * pr->p_speed;
 		pr->ppos_y += sin(pr->p_angle + M_PI_2) * pr->p_speed;
@@ -133,9 +151,6 @@ void	move_player_left_right(t_data *pr)
 
 void	mouvements(t_data *pr)
 {
-	float	tmpx;
-	float	tmpy;
-
 	rotate_player(pr);
 	move_player_forward_backward(pr);
 	move_player_left_right(pr);
@@ -164,8 +179,9 @@ void	set_ray_direction(t_ray *ray, double ray_angle)
 	if (ray_angle >= 0 && ray_angle < M_PI)
 		ray->is_up = 0;
 }
+
 //function to get y and x intersections of the ray with the grid
-void	set_horz_intersections(t_data* data, t_ray* ray, double ray_angle)
+void	set_horz_intersections(t_data *data, t_ray *ray, double ray_angle)
 {
 	ray->y_inter = floor(data->ppos_y / data->sq_dim) * data->sq_dim;
 	if (!ray->is_up)
@@ -182,13 +198,14 @@ void	set_horz_intersections(t_data* data, t_ray* ray, double ray_angle)
 	ray->next_touch_y = ray->y_inter;
 }
 
-void set_vert_intersections(t_data* data, t_ray* ray, double ray_angle)
+void	set_vert_intersections(t_data *data, t_ray *ray, double ray_angle)
 {
 	ray->x_inter = floor(data->ppos_x / data->sq_dim) * data->sq_dim;
 	if (!ray->is_left)
 		ray->x_inter += data->sq_dim;
 	ray->y_inter = data->ppos_y + (ray->x_inter - data->ppos_x)
 		* tan(ray_angle);
+
 	ray->x_stp = data->sq_dim;
 	if (ray->is_left)
 		ray->x_stp *= -1;
@@ -199,7 +216,7 @@ void set_vert_intersections(t_data* data, t_ray* ray, double ray_angle)
 	ray->next_touch_y = ray->y_inter;
 }
 
-void horizontal(t_data* data, double ray_angle, t_wall* wall)
+void	horizontal(t_data *data, double ray_angle, t_wall *wall)
 {
 	t_ray	ray;
 
@@ -228,7 +245,7 @@ void horizontal(t_data* data, double ray_angle, t_wall* wall)
 	}
 }
 
-void verticall(t_data* data, double ray_angle, t_wall* wall)
+void	verticall(t_data *data, double ray_angle, t_wall *wall)
 {
 	t_ray	ray;
 
@@ -257,75 +274,77 @@ void verticall(t_data* data, double ray_angle, t_wall* wall)
 	}
 }
 
-void	draw_strip(t_data* data, int ray_x, double wall_hight,int x_offset)
+int	get_color( mlx_texture_t *tex, int x, int y)
+{
+	uint8_t	*pixels;
+	int		color;
+
+	pixels = tex->pixels;
+	color = (pixels[(y * tex->width * 4) + (4 * x) + 0] << 24);
+	color += (pixels[(y * tex->width * 4) + (4 * x) + 1] << 16);
+	color += (pixels[(y * tex->width * 4) + (4 * x) + 2] << 8);
+	color += (pixels[(y * tex->width * 4) +(4 * x) + 3]);
+	return (color);
+}
+
+void	draw_wall_ray(t_draw *dr, t_data *data, t_ray *ray, mlx_texture_t *tex)
+{
+	while (dr->i++ < dr->y_0 + ray->wall_height)
+	{
+		if (dr->i < data->win_h && dr->i > 0)
+		{
+			dr->top_dist = dr->y + (dr->strip_height / 2)
+				- ((float)data->win_h / 2);
+			ray->y_offset = dr->top_dist * ((float)tex->height
+					/ ray->wall_height);
+			ray->y_offset = abs(ray->y_offset);
+			dr->color = get_color(tex, ray->x_offset, ray->y_offset);
+			mlx_put_pixel(data->mlx_im, ray->i, dr->y, dr->color);
+		}
+		dr->y++;
+	}
+}
+
+void	draw_strip(t_data *data, t_ray *ray)
 {
 	mlx_texture_t	*tex;
-	
-	float			wall_strip_height;
-	int				begin;
-	int				ray_y;
-	int				i;
-	int				y_offset;
-	int				distance_from_top;
-	int				color;
+	t_draw			draw;
 
-	wall_strip_height = wall_hight;
+	draw.strip_height = ray->wall_height;
 	tex = data->txt;
-	begin = (data->win_h / 2) - (wall_hight / 2);
-	ray_y = 0;
-	while (ray_y < begin)
-	{
-		mlx_put_pixel(data->mlx_im, ray_x, ray_y, 0x000000ff);
-		ray_y++;
-	}
-	ray_y = begin;
-	i = begin;
-	while (i++ < begin + wall_hight)
-	{
-		if (i < data->win_h && i > 0)
-		{
-			distance_from_top = ray_y + (wall_strip_height / 2) - ((float)data->win_h / 2);
-			y_offset = distance_from_top * ((float)tex->height / wall_hight);
-			y_offset = abs(y_offset);
-			color = (tex->pixels[(y_offset*tex->width*4) + (x_offset * 4)+0]<< 24)
-			 + (tex->pixels[(y_offset*tex->width*4) + (x_offset * 4)+1]<< 16) +
-			 (tex->pixels[(y_offset*tex->width*4) + (x_offset * 4)+2]<< 8) + (tex->pixels[(y_offset*tex->width*4) +
-			 (x_offset * 4)+3]);
-			mlx_put_pixel(data->mlx_im, ray_x, ray_y, color);
-		}
-		ray_y++;
-	}
-
-	while (ray_y < data->win_h)
-	{
-		mlx_put_pixel(data->mlx_im, ray_x, ray_y, 0x7a776eff);
-		ray_y++;
-	}
-	x_offset = 0;
-
+	draw.y_0 = (data->win_h / 2) - (ray->wall_height / 2);
+	draw.y = 0;
+	while (draw.y < draw.y_0)
+		mlx_put_pixel(data->mlx_im, ray->i, draw.y++, data->ceiling_color);
+	draw.y = draw.y_0;
+	draw.i = draw.y_0;
+	draw_wall_ray(&draw, data, ray, tex);
+	while (draw.y < data->win_h)
+		mlx_put_pixel(data->mlx_im, ray->i, draw.y++, data->floor_color);
+	ray->x_offset = 0;
 }
 
 //functions to count the distance between the player and the wall
-void set_distance(t_data* data, t_wall* wall)
+void	set_distance(t_data *data, t_wall *wall)
 {
-
 	wall->vert_distance = (data->height * data->width) * data->sq_dim;
 	wall->horz_distance = (data->height * data->width) * data->sq_dim;
 	if (wall->vert_found_wall)
 	{
-		wall->vert_distance = sqrt((wall->vert_x - data->ppos_x) *
-			(wall->vert_x - data->ppos_x)+(wall->vert_y - data->ppos_y) *
-			(wall->vert_y - data->ppos_y));
+		wall->vert_distance = sqrt((wall->vert_x - data->ppos_x)
+				* (wall->vert_x - data->ppos_x) + (wall->vert_y - data->ppos_y)
+				* (wall->vert_y - data->ppos_y));
 	}
 	if (wall->horz_found_wall)
 	{
-		wall->horz_distance = sqrt ((wall->horz_x - data->ppos_x) * 
-			(wall->horz_x - data->ppos_x) + (wall->horz_y - data->ppos_y) *
-			(wall->horz_y - data->ppos_y));
+		wall->horz_distance = sqrt ((wall->horz_x - data->ppos_x)
+				* (wall->horz_x - data->ppos_x) + (wall->horz_y - data->ppos_y)
+				* (wall->horz_y - data->ppos_y));
 	}
 }
+
 //function to project horizontal rays
-int  project_horz_ray(t_data *data, t_wall *wall, t_ray *ray)
+int	project_horz_ray(t_data *data, t_wall *wall, t_ray *ray)
 {
 	if (wall->horz_distance < wall->vert_distance 
 		|| (wall->horz_distance == wall->vert_distance && ray->test == false))
@@ -341,21 +360,22 @@ int  project_horz_ray(t_data *data, t_wall *wall, t_ray *ray)
 			data->txt = data->txt_s;
 		}
 		ray->test = false;
-		ray->lenght = wall->horz_distance *cos(data->p_angle - ray->angle);
-		ray->dist_proj_plan = (data->win_w / 2) * tan(data->fov/2);
+		ray->lenght = wall->horz_distance * cos(data->p_angle - ray->angle);
+		ray->dist_proj_plan = (data->win_w / 2) * tan(data->fov / 2);
 		ray->wall_height = (data->sq_dim / ray->lenght) * ray->dist_proj_plan;
 		ray->x_offset = ((float)data->txt->width / data->sq_dim)
 			* (wall->horz_x % data->sq_dim);
-		draw_strip(data, ray->i, ray->wall_height, ray->x_offset);
-		return 1;
+		draw_strip(data, ray);
+		return (1);
 	}
 	return (0);
 }
+
 //function to project vertical rays
-int project_vert_ray(t_data *data, t_wall *wall, t_ray *ray)
+int	project_vert_ray(t_data *data, t_wall *wall, t_ray *ray)
 {
 	if (wall->horz_distance > wall->vert_distance
-			|| (wall->horz_distance == wall->vert_distance && ray->test == true))
+		|| (wall->horz_distance == wall->vert_distance && ray->test == true))
 	{
 		if (wall->vert_x < data->ppos_x)
 		{
@@ -365,33 +385,34 @@ int project_vert_ray(t_data *data, t_wall *wall, t_ray *ray)
 		else
 		{
 			wall->direction = WEST;
-			data->txt = data->txt_w;	
+			data->txt = data->txt_w;
 		}
 		ray->test = true;
-		ray->lenght = wall->vert_distance *cos(data->p_angle - ray->angle);
-		ray->dist_proj_plan = (data->win_w / 2) * tan(data->fov/2);
+		ray->lenght = wall->vert_distance * cos(data->p_angle - ray->angle);
+		ray->dist_proj_plan = (data->win_w / 2) * tan(data->fov / 2);
 		ray->wall_height = (data->sq_dim / ray->lenght) * ray->dist_proj_plan;
 		ray->x_offset = ((float)data->txt->width / data->sq_dim)
-			*( wall->vert_y % data->sq_dim);
-		draw_strip(data, ray->i, ray->wall_height, ray->x_offset);
+			* (wall->vert_y % data->sq_dim);
+		draw_strip(data, ray);
 		return (1);
 	}
 	return (0);
 }
 
-void wall_projection(t_data *data)
+void	wall_projection(t_data *data)
 {
-	t_wall wall;
-	t_ray ray;
+	t_wall	wall;
+	t_ray	ray;
 
 	ft_bzero(&ray, sizeof(t_ray));
-	ray.step = fabs((float)data->fov/ (float)data->num_rays);
-	ray.angle = data->p_angle - (data->fov/2);
+	ray.step = fabs((float)data->fov / (float)data->num_rays);
+	ray.angle = data->p_angle - (data->fov / 2);
 	while (ray.i < data->num_rays)
 	{
 		normalize_angle(&ray.angle);
 		normalize_angle(&data->p_angle);
-		wall.horz_found_wall = wall.vert_found_wall = false;
+		wall.horz_found_wall = false;
+		wall.vert_found_wall = false;
 		horizontal(data, ray.angle, &wall);
 		verticall(data, ray.angle, &wall);
 		set_distance(data, &wall);
@@ -402,26 +423,30 @@ void wall_projection(t_data *data)
 	}
 }
 
-void draw(void *dt)
-{    
-    t_data* data;
+void	draw(void *dt)
+{
+	t_data	*data;
 
-    data = (t_data*)dt; 
-    mouvements(data);
+	data = (t_data *) dt;
+	mouvements(data);
 	wall_projection(data);
 }
 
-void vue_angle(t_data *param)
+void	vue_angle(t_data *param)
 {
-	int y = 0;
-	int x;
+	int	y;
+	int	x;
 
-    param->p_angle = 1;
-	while (param->mat[y] != NULL)
-	{
-		x = 0;
-		while (param->mat[y][x] != '\0')
-		{
+	x = param->ppos_x;
+	y = param->ppos_y;
+
+	// y = 0;
+	// param->p_angle = 1;
+	// while (param->mat[y] != NULL)
+	// {
+	// 	x = 0;
+	// 	while (param->mat[y][x] != '\0')
+	// 	{
 			if (param->mat[y][x] == 'N')
 				param->p_angle = M_PI_2 * 3;
 			else if (param->mat[y][x] == 'E')
@@ -430,20 +455,23 @@ void vue_angle(t_data *param)
 				param->p_angle = M_PI_2;
 			else if (param->mat[y][x] == 'W')
 				param->p_angle = M_PI;
-            if (param->p_angle != 1)
-            {
-                param->ppos_y = (y * param->sq_dim) + (param->sq_dim / 2);
-                param->ppos_x = (x * param->sq_dim) + (param->sq_dim / 2);
-                return ;
-            }
-			x++;
-		}
-		y++;
-	}
+	// 		if (param->p_angle != 1)
+	// 		{
+				param->ppos_y = (y * param->sq_dim) + (param->sq_dim / 2);
+				param->ppos_x = (x * param->sq_dim) + (param->sq_dim / 2);
+	// 			return ;
+	// 		}
+	// 		x++;
+	// 	}
+	// 	y++;
+	// }
+	printf("angle = %f\n", param->p_angle);
 }
-void free_data(t_data* data, int exit_code)
+
+void	free_data(t_data *data, int exit_code)
 {
-	int i;
+	int	i;
+
 	i = 0;
 	if (data->mat == NULL)
 		return ;
@@ -453,61 +481,69 @@ void free_data(t_data* data, int exit_code)
 		i++;
 	}
 	free(data->mat);
-
 	if (data->txt_n)
 		mlx_delete_texture(data->txt_n);
-	if (data->txt_s)	
+	if (data->txt_s)
 		mlx_delete_texture(data->txt_s);
 	if (data->txt_e)
 		mlx_delete_texture(data->txt_e);
 	if (data->txt_w)
 		mlx_delete_texture(data->txt_w);
 	if (data->mlx_im)
-		mlx_delete_image(data->mlx_in,data->mlx_im);
+		mlx_delete_image(data->mlx_in, data->mlx_im);
 	data = NULL;
 	exit(exit_code);
 }
 
-void initialize_data(t_data* data)
+void	initialize_data(t_data *data, t_param *params)
 {
-    data->sq_dim = 100;
+	data->mat = params->map_mehdi;
+	data->sq_dim = 100;
 	data->p_speed = 4;
 	data->p_rad = data->p_speed + 1;
 	data->rotation_angle = 1;
-	data->fov = 60*(M_PI / 180);
+	data->fov = 60 * (M_PI / 180);
 	data->win_w = 1600;
-    data->win_h = 800;
-	data->txt_e = mlx_load_png("./pics/wood.png");
-	data->txt_w = mlx_load_png("./pics/greystone.png");
-	data->txt_n = mlx_load_png("./pics/redbrick.png");
-	data->txt_s = mlx_load_png("./pics/colorstone.png");
+	data->win_h = 800;
+	data->txt_e = mlx_load_png(params->EA);
+	data->txt_w = mlx_load_png(params->WE);
+	data->txt_n = mlx_load_png(params->NO);
+	data->txt_s = mlx_load_png(params->SO);
 	if (!data->txt_e || !data->txt_w || !data->txt_n || !data->txt_s)
 		free_data(data, 1);
-	data->width =(data->width - 1) * data->sq_dim;
-	data->height = (data->height - 1) * data->sq_dim;
+	data->floor_color = params->rgb_F;
+	data->ceiling_color = params->rgb_C;
+	data->width = (params->long_line - 1) * data->sq_dim;
+	data->height = (params->height_map - 1) * data->sq_dim;
 	data->num_rays = data->win_w;
+	data->ppos_x = params->x_player;
+	data->ppos_y = params->y_player;
+	printf("width = %lu\n", params->long_line);
+	printf("height = %d\n", params->height_map);
+	printf("-------------------\n");
+	printf("x = %f\n", data->ppos_x);
+	printf("y = %f\n", data->ppos_y);
 }
 
-int main(int ac, char **av)
+int	display(t_param *params)
 {
-    t_data data;
-
+	t_data	data;
+	
 	ft_bzero(&data, sizeof(t_data));
-    if (ac!= 2)
-        return 1;
-	lire_map(&data, av[1]);
-    len_mapp(&data);
-	initialize_data(&data);
-    vue_angle(&data);
-    data.mlx_in = mlx_init(data.win_w, data.win_h, "cub3D", 0);
+	// if (ac != 2)
+	// 	return (1);
+	// lire_map(&data, av[1]);
+	// len_mapp(&data);
+	initialize_data(&data, params);
+	vue_angle(&data);
+	data.mlx_in = mlx_init(data.win_w, data.win_h, "cub3D", 0);
 	if (!data.mlx_in)
 		free_data(&data, 1);
 	data.mlx_im = mlx_new_image(data.mlx_in, data.win_w, data.win_h);
 	if (!data.mlx_im)
 		free_data(&data, 1);
-    mlx_image_to_window(data.mlx_in, data.mlx_im, 0, 0);
-    mlx_loop_hook(data.mlx_in, draw, &data);
-    mlx_loop(data.mlx_in);
-    return 0;
-
+	mlx_image_to_window(data.mlx_in, data.mlx_im, 0, 0);
+	mlx_loop_hook(data.mlx_in, draw, &data);
+	mlx_loop(data.mlx_in);
+	return (0);
 }
