@@ -14,10 +14,10 @@ int ft_cnt_line(char *av1)
 		i++;
 		free(c);
 		if (!c)
-			break;
+			break ;
 	}
 	close(fd);
-	return(i);
+	return (i);
 }
 
 
@@ -148,7 +148,7 @@ void check_long_line(t_param *vars)
 	while(vars->last_map[i])
 	{
 		if(ft_strlen(vars->last_map[i]) > vars->long_line)
-			vars->long_line = ft_strlen(vars->last_map[i]);
+			vars->long_line = ft_strlen(vars->last_map[i]) - 1;
 		i++;	
 	}
 	printf("long line : %zu\n", vars->long_line);
@@ -568,7 +568,7 @@ int check_jnob(t_param *vars)
 	y = vars->first_line;
 	while (y < vars->last_line)
 	{
-		if(ft_strchr("\n1 ", vars->map[y][0]) == NULL)
+		if(ft_strchr("1 ", vars->map[y][0]) == NULL)
 		{
 			printf("HERE11\n");
 			return(1);
@@ -582,13 +582,13 @@ int check_jnob(t_param *vars)
       {
 				if(check == 0)
 				{
-					vars->first_nl = y;
+					vars->first_nl = 0;
 					check = 1;
 				}
 			  y++;
         continue;
       }
-			if(ft_strchr("1 \n", vars->map[y][ft_strlen(vars->map[y]) - 2]) == NULL)
+			if(ft_strchr("1 ", vars->map[y][ft_strlen(vars->map[y]) - 2]) == NULL)
 			{
 				printf("HERE22\n");
 				return(1);
@@ -615,7 +615,9 @@ void ft_change(t_param *vars)
 						vars->map_mehdi[i][j] = vars->last_map[i][j];
 				j++;
 			}
-		printf("new line %d : %s\n", i,vars->map_mehdi[i]);	
+		// if(vars->map_mehdi[i][ft_strlen(vars->map_mehdi[i]-2)] == '\n')
+		// 	vars->map_mehdi[i][ft_strlen(vars->map_mehdi[i]-2)] = '\0';
+		printf("new line %d : [%s]\n", i,vars->map_mehdi[i]);
 		i++;
 	}
 	printf("++++++++++++++++++++++++++++%d\n", i);
@@ -666,7 +668,7 @@ void map_mehdi(t_param *vars)
 		if(vars->map_mehdi[i + 1] != NULL)
 			vars->map_mehdi[i][vars->long_line] = '\n';
 		vars->map_mehdi[i][vars->long_line + 1] = '\0';
-		// printf("new line %d : %s", i,vars->map_mehdi[i]);
+		printf("new line %d : %s", i,vars->map_mehdi[i]);
 		i++;
 	}
 	vars->map_mehdi[i] = 0;
@@ -696,10 +698,9 @@ int	create_rgb(int r, int g, int b)
 }
 void search_rgb(char *str, int rgb)
 {
-	// char **s;
+
 	char **s2;
 
-	// s = ft_split(str, ' ');
 	s2 = ft_split(str, ',');
 	
 	printf("S[0] = %s\n", s2[0]);
@@ -801,5 +802,6 @@ int main(int ac, char **av)
 	printf("x = %d\n", param.x_player);
 	printf("y = %d\n", param.y_player);
 	printf("height_map = %d\n", param.height_map);
+	printf("long line : %zu\n", param.long_line);
 	display(&param);
 }
