@@ -6,11 +6,7 @@
 #    By: eboulhou <eboulhou@student.42.fr>          +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2023/08/14 15:54:50 by rarraji           #+#    #+#              #
-<<<<<<< HEAD
-#    Updated: 2023/10/30 12:26:22 by eboulhou         ###   ########.fr        #
-=======
-#    Updated: 2023/10/25 15:51:02 by eboulhou         ###   ########.fr        #
->>>>>>> 6b4267c80c8df90569f31d36df8eb47b33624538
+#    Updated: 2023/10/30 15:23:07 by eboulhou         ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
@@ -52,11 +48,8 @@ $(NAME): $(OBJ) $(LIBFT)
 	$(CC)  $(FSAN) $(OBJ) $(LIBFT) $(MLX) $(GLFW)  -o $(NAME)  
 	@printf "$(GREEN) Executable ready.\n"
 
-<<<<<<< HEAD
 %.o : %.c
 	$(CC)  $(FSAN) -c $< -o $@ 
-=======
->>>>>>> 6b4267c80c8df90569f31d36df8eb47b33624538
 
 $(LIBFT):
 	make -C libft

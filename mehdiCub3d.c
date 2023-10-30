@@ -6,11 +6,7 @@
 /*   By: eboulhou <eboulhou@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/10/24 18:23:06 by eboulhou          #+#    #+#             */
-<<<<<<< HEAD
-/*   Updated: 2023/10/30 15:10:16 by eboulhou         ###   ########.fr       */
-=======
-/*   Updated: 2023/10/25 15:50:46 by eboulhou         ###   ########.fr       */
->>>>>>> 6b4267c80c8df90569f31d36df8eb47b33624538
+/*   Updated: 2023/10/30 15:23:55 by eboulhou         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -278,7 +274,6 @@ void	verticall(t_data *data, double ray_angle, t_wall *wall)
 	}
 }
 
-<<<<<<< HEAD
 int	get_color( mlx_texture_t *tex, int x, int y)
 {
 	uint8_t	*pixels;
@@ -288,23 +283,10 @@ int	get_color( mlx_texture_t *tex, int x, int y)
 	color = (pixels[(y * tex->width * 4) + (4 * x) + 0] << 24);
 	color += (pixels[(y * tex->width * 4) + (4 * x) + 1] << 16);
 	color += (pixels[(y * tex->width * 4) + (4 * x) + 2] << 8);
-=======
-int get_color( mlx_texture_t *tex, int x, int y)
-{
-	uint8_t *pixels;
-	int color;
-	
-	
-	pixels = tex->pixels;
-	color  = (pixels[(y * tex->width * 4) + (4 * x) + 0]<< 24);
-	color += (pixels[(y * tex->width * 4) + (4 * x) + 1]<< 16);
-	color +=(pixels[(y * tex->width * 4) + (4 * x) + 2]<< 8);
->>>>>>> 6b4267c80c8df90569f31d36df8eb47b33624538
 	color += (pixels[(y * tex->width * 4) +(4 * x) + 3]);
 	return (color);
 }
 
-<<<<<<< HEAD
 void	draw_wall_ray(t_draw *dr, t_data *data, t_ray *ray, mlx_texture_t *tex)
 {
 	while (dr->i++ < dr->y_0 + ray->wall_height)
@@ -327,37 +309,6 @@ void	draw_strip(t_data *data, t_ray *ray)
 {
 	mlx_texture_t	*tex;
 	t_draw			draw;
-=======
-void	draw_strip(t_data* data, t_ray *ray)
-{
-	mlx_texture_t	*tex;
-	t_draw			draw;
-
-	draw.strip_height = ray->wall_height;
-	tex = data->txt;
-	draw.y_0 = (data->win_h / 2) - (ray->wall_height / 2);
-	draw.y = 0;
-	while (draw.y < draw.y_0)
-		mlx_put_pixel(data->mlx_im, ray->i, draw.y++, data->ceiling_color);
-	draw.y = draw.y_0;
-	draw.i = draw.y_0;
-	while (draw.i++ < draw.y_0 + ray->wall_height)
-	{
-		if (draw.i < data->win_h && draw.i > 0)
-		{
-			draw.top_dist = draw.y + (draw.strip_height / 2) - ((float)data->win_h / 2);
-			ray->y_offset = draw.top_dist * ((float)tex->height / ray->wall_height);
-			ray->y_offset = abs(ray->y_offset);
-			draw.color = get_color(tex, ray->x_offset, ray->y_offset);
-			mlx_put_pixel(data->mlx_im, ray->i, draw.y, draw.color);
-		}
-		draw.y++;
-	}
-	while (draw.y < data->win_h)
-		mlx_put_pixel(data->mlx_im, ray->i, draw.y++, data->floor_color);
-
-	ray->x_offset = 0;
->>>>>>> 6b4267c80c8df90569f31d36df8eb47b33624538
 
 	draw.strip_height = ray->wall_height;
 	tex = data->txt;
@@ -415,11 +366,7 @@ int	project_horz_ray(t_data *data, t_wall *wall, t_ray *ray)
 		ray->x_offset = ((float)data->txt->width / data->sq_dim)
 			* (wall->horz_x % data->sq_dim);
 		draw_strip(data, ray);
-<<<<<<< HEAD
 		return (1);
-=======
-		return 1;
->>>>>>> 6b4267c80c8df90569f31d36df8eb47b33624538
 	}
 	return (0);
 }
@@ -445,11 +392,7 @@ int	project_vert_ray(t_data *data, t_wall *wall, t_ray *ray)
 		ray->dist_proj_plan = (data->win_w / 2) * tan(data->fov / 2);
 		ray->wall_height = (data->sq_dim / ray->lenght) * ray->dist_proj_plan;
 		ray->x_offset = ((float)data->txt->width / data->sq_dim)
-<<<<<<< HEAD
 			* (wall->vert_y % data->sq_dim);
-=======
-			*( wall->vert_y % data->sq_dim);
->>>>>>> 6b4267c80c8df90569f31d36df8eb47b33624538
 		draw_strip(data, ray);
 		return (1);
 	}
@@ -568,18 +511,10 @@ void	initialize_data(t_data *data, t_param *params)
 	data->txt_s = mlx_load_png(params->SO);
 	if (!data->txt_e || !data->txt_w || !data->txt_n || !data->txt_s)
 		free_data(data, 1);
-<<<<<<< HEAD
 	data->floor_color = params->rgb_F;
 	data->ceiling_color = params->rgb_C;
 	data->width = (params->long_line - 1) * data->sq_dim;
 	data->height = (params->height_map - 1) * data->sq_dim;
-=======
-
-	data->floor_color = 0x7a776eff;
-	data->ceiling_color = 0x000000ff;
-	data->width =(data->width - 1) * data->sq_dim;
-	data->height = (data->height - 1) * data->sq_dim;
->>>>>>> 6b4267c80c8df90569f31d36df8eb47b33624538
 	data->num_rays = data->win_w;
 	data->ppos_x = params->x_player;
 	data->ppos_y = params->y_player;
