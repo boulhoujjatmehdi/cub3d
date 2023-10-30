@@ -76,6 +76,7 @@ typedef struct s_data
 
 typedef struct s_ray
 {
+<<<<<<< HEAD
 	float	x_inter;
 	float	y_inter;
 	float	x_stp;
@@ -96,11 +97,58 @@ typedef struct s_ray
 	float	wall_height;
 	int		x_offset;
 	int		y_offset;
+=======
+    //x coordinate of the intersection
+	float x_inter;
+    //y coordinate of the intersection
+	float y_inter;
+    //x step
+	float x_stp;
+    //y step
+	float y_stp;
+    //ray direction
+	int is_up;
+    //ray direction
+	int is_left;
+    //x intersection + x step
+	float next_touch_x;
+    //y intersection + y step
+	float next_touch_y;
+    //variable to check if the ray hit a wall
+	float check_x;
+    //variable to check if the ray hit a wall
+	float check_y;
+    /*OOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOO*/
+    //iterator i 
+    int i;
+    //iterator j
+    int j;
+    //ray angle
+    float angle;
+    //ray step
+    float step;
+    //ray test
+    bool test;
+    //ray lenght
+    float lenght;
+    //distance to projected plan
+    float dist_proj_plan;
+    //wall height
+    float wall_height;
+    //wall x_offset
+    int x_offset;
+    //wall y_offset
+    int y_offset;
+>>>>>>> 6b4267c80c8df90569f31d36df8eb47b33624538
 }t_ray;
 
 typedef struct s_draw
 {
+<<<<<<< HEAD
 	float	strip_height;
+=======
+    float	strip_height;
+>>>>>>> 6b4267c80c8df90569f31d36df8eb47b33624538
 	int		y_0;
 	int		y;
 	int		i;
@@ -108,4 +156,10 @@ typedef struct s_draw
 	int		top_dist;
 	int		color;
 }t_draw;
+<<<<<<< HEAD
+=======
+
+
+
+>>>>>>> 6b4267c80c8df90569f31d36df8eb47b33624538
 #endif
