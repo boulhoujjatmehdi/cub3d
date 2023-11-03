@@ -6,14 +6,14 @@
 #    By: eboulhou <eboulhou@student.42.fr>          +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2023/08/14 15:54:50 by rarraji           #+#    #+#              #
-#    Updated: 2023/10/30 15:23:07 by eboulhou         ###   ########.fr        #
+#    Updated: 2023/11/02 10:58:32 by eboulhou         ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
 NAME	= CUB3D
 	
 CC		= cc
-FSAN   = -fsanitize=address -g
+FSAN  	=  -fsanitize=address -g
 FLAGS	= -Wall -Wextra -Werror $(FSAN)
 RM		= rm -rf
 SRC		= 	get_next_line_utils.c \

@@ -188,7 +188,7 @@ int		check_av(char *av);
 int		ft_defpar(char c, t_vars *param);
 void	ft_put(t_vars *param, void *img);
 void	ft_init(t_vars *pr);
-void	free_all_map(t_vars *param);
+// void	free_all_map(t_vars *param);
 
 
 

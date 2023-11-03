@@ -6,7 +6,7 @@
 /*   By: eboulhou <eboulhou@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/10/24 18:23:06 by eboulhou          #+#    #+#             */
-/*   Updated: 2023/10/30 15:23:55 by eboulhou         ###   ########.fr       */
+/*   Updated: 2023/11/01 16:55:12 by eboulhou         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -205,7 +205,6 @@ void	set_vert_intersections(t_data *data, t_ray *ray, double ray_angle)
 		ray->x_inter += data->sq_dim;
 	ray->y_inter = data->ppos_y + (ray->x_inter - data->ppos_x)
 		* tan(ray_angle);
-
 	ray->x_stp = data->sq_dim;
 	if (ray->is_left)
 		ray->x_stp *= -1;
@@ -530,12 +529,8 @@ void	initialize_data(t_data *data, t_param *params)
 int	display(t_param *params)
 {
 	t_data	data;
-	
+
 	ft_bzero(&data, sizeof(t_data));
-	// if (ac != 2)
-	// 	return (1);
-	// lire_map(&data, av[1]);
-	// len_mapp(&data);
 	initialize_data(&data, params);
 	vue_angle(&data);
 	data.mlx_in = mlx_init(data.win_w, data.win_h, "cub3D", 0);
