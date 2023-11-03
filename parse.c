@@ -40,6 +40,7 @@ char **read_file(t_param *var, char *av1)
 		j++;
 	}
 	var->map[j] = 0;
+	var->map_trim[j] = 0;
 	return (var->map);
 }
 
@@ -726,6 +727,25 @@ int	check_av(char *av)
 // }
 
 
+
+void	free_all_map(char **vars)
+{
+	int	i;
+
+	i = 0;
+	if(!vars)
+		return;
+	printf("free_all_map***********************************************\n");
+	while (vars[i])
+	{
+		printf("free : %s\n", vars[i]);
+		free(vars[i]);
+		vars[i] = NULL;
+		i++;
+	}
+	free(vars);
+}
+
 int main(int ac, char **av)
 {
 	char **c;
@@ -740,21 +760,22 @@ int main(int ac, char **av)
 	if (ft_cnt_param(&param) != 6 || check_par(&param) != 6 || check_color(&param))
 	{
 		// free_all_map(&param);
-		// free_all_map(param.map_trim);
-		// free_all_map(param.map);
+		free_all_map(param.map_trim);
+		free_all_map(param.map);
 		printf("EROOR 88 !!\n");
-		system("leaks CUB3D");
+		// system("leaks CUB3D");
 		
 		// free;
 		return (0);
 	}
 	if (check_first_last_line(&param) || check_jnob(&param) || ft_search_player(&param) != 1 || ft_check_space(&param))
 	{
+		
 		// free_all_map(&param);
-		system("leaks CUB3D");
-		// free_all_map(param.map_trim);
-		// free_all_map(param.last_map);
+		free_all_map(param.map);
+		free_all_map(param.map_trim);
 		printf("EROOR 99 !!\n");
+		// system("leaks CUB3D");
 		// free;
 		return (0);
 	}
