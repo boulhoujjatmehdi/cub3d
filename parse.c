@@ -83,7 +83,7 @@ void remplir_var(char *line, t_param *var)
 		var->F = ft_substr(split[1], 0, ft_strlen(split[1]));
 	else
 		var->C = ft_substr(split[1], 0, ft_strlen(split[1]));
-	// free_all_map(split);	
+	free_all_map(split);	
 }
 
 int	ft_strlen2(char *s)
@@ -344,31 +344,32 @@ int check_range(char **color)
 
 int ft_check_is_digit(char *color)
 {
-	char **cheak;
+	char **check;
 	int i;
 	// printf("'%s'\n", color);
 	i = 0;
-	cheak = ft_split(color, ',');
-	while (cheak[i])
+	check = ft_split(color, ',');
+	while (check[i])
 		i++;
 	if(i != 3)
 		return(1);
 	i = 0;	
-	while(cheak[i])
+	while(check[i])
 	{
-		printf("-->%s\n", cheak[i]);
-		if(check_string_is_digit(cheak[i]))
+		printf("-->%s\n", check[i]);
+		if(check_string_is_digit(check[i]))
 		{
 			printf("HERE5\n");
 			return(1);
 		}
 		i++;
 	}
-	if(check_range(cheak))
+	if(check_range(check))
 	{
 		printf("HERE6\n");
 		return(1);
 	}
+	free_all_map(check);
 	return(0);
 	
 }
@@ -646,9 +647,9 @@ void map_mehdi(t_param *vars)
 
 int	create_rgb(int r, int g, int b)
 {
-	return (r << 16 | g << 8 | b);
+	return (r << 24 | g << 16 | b << 8 | 255);
 }
-void search_rgb(char *str, int rgb)
+void search_rgb(char *str, int *rgb)
 {
 	// char **s;
 	char **s2;
@@ -659,7 +660,8 @@ void search_rgb(char *str, int rgb)
 	printf("S[0] = %s\n", s2[0]);
 	printf("S[1] = %s\n", s2[1]);
 	printf("S[2] = %s\n", ft_substr(s2[2], 0, ft_strlen(s2[2]) - 1));
-	rgb = (ft_atoi(s2[0]), ft_atoi(s2[1]), ft_atoi(ft_substr(s2[2], 0, ft_strlen(s2[2]) - 1)));
+	*rgb = create_rgb(ft_atoi(s2[0]), ft_atoi(s2[1]), ft_atoi(ft_substr(s2[2], 0, ft_strlen(s2[2]) - 1)));
+	free_all_map(s2);
 }
 
 void	exist_file(char *av)
@@ -746,63 +748,75 @@ void	free_all_map(char **vars)
 	free(vars);
 }
 
-int main(int ac, char **av)
+int main1(int ac, char **av , t_param *param)
 {
 	char **c;
 	// int  i = 0;
 
 	(void)ac;
-	t_param param;
-	ft_bzero(&param, sizeof(t_param));
+	// t_param param;
+	ft_bzero(param, sizeof(t_param));
 	if(check_av(av[1]))
 		return (0);
-	c = read_file(&param, av[1]);
-	if (ft_cnt_param(&param) != 6 || check_par(&param) != 6 || check_color(&param))
+	c = read_file(param, av[1]);
+	if (ft_cnt_param(param) != 6 || check_par(param) != 6 || check_color(param))
 	{
-		// free_all_map(&param);
-		free_all_map(param.map_trim);
-		free_all_map(param.map);
+		// free_all_map(param);
+		free_all_map(param->map_trim);
+		free_all_map(param->map);
 		printf("EROOR 88 !!\n");
 		// system("leaks CUB3D");
 		
 		// free;
 		return (0);
 	}
-	if (check_first_last_line(&param) || check_jnob(&param) || ft_search_player(&param) != 1 || ft_check_space(&param))
+	if (check_first_last_line(param) || check_jnob(param) || ft_search_player(param) != 1 || ft_check_space(param))
 	{
 		
-		// free_all_map(&param);
-		free_all_map(param.map);
-		free_all_map(param.map_trim);
+		// free_all_map(param);
+		free_all_map(param->map);
+		free_all_map(param->map_trim);
 		printf("EROOR 99 !!\n");
 		// system("leaks CUB3D");
 		// free;
 		return (0);
 	}
-	// ft_valid_path(&i, param.y_player, param.x_player, &param);
+	// ft_valid_path(&i, param->y_player, param->x_player, param);
 	// if(i != 0)
 	// {
 	// 	printf("EROOR Soliix !!\n");
 	// 	return(0);
 	// }
 	// system("leaks -p");
-	ft_ptrint_map(&param);
+	ft_ptrint_map(param);
 	printf("-------------------------------------------\n");
-	map_mehdi(&param);
-	search_rgb(param.F, param.rgb_F);
-	search_rgb(param.C, param.rgb_C);
-	printf("rgb_C = %d\n", param.rgb_C);
-	printf("rgb_F = %d\n", param.rgb_F);
-	printf("%s\n", param.C);
-	printf("%s\n", param.F);
-	printf("(%s)\n", param.NO);
-	printf("(%s)\n", param.EA);
-	printf("(%s)\n", param.WE);
-	printf("(%s)\n", param.SO);
-	printf("x = %d\n", param.x_player);
-	printf("y = %d\n", param.y_player);
-	printf("height_map = %d\n", param.height_map);
-	// while(1)
-	// 	;
-	display(&param);
+	map_mehdi(param);
+	search_rgb(param->F, &param->rgb_F);
+	search_rgb(param->C, &param->rgb_C);
+	// printf("rgb_C = %d\n", param->rgb_C);
+	free_all_map(param->map);
+	free_all_map(param->map_trim);
+	free_all_map(param->last_map);
+	printf("rgb_C = %d\n", param->rgb_C);
+	printf("rgb_F = %d\n", param->rgb_F);
+	printf("%s\n", param->C);
+	printf("%s\n", param->F);
+	printf("(%s)\n", param->NO);
+	printf("(%s)\n", param->EA);
+	printf("(%s)\n", param->WE);
+	printf("(%s)\n", param->SO);
+	printf("x = %d\n", param->x_player);
+	printf("y = %d\n", param->y_player);
+	printf("height_map = %d\n", param->height_map);
+
+	// display(param);
+return 0;
+}
+
+int main(int av, char **ac)
+{
+	t_param param;
+	main1(av, ac, &param);
+	// system("leaks CUB3D");
+	return(0);
 }
