@@ -603,8 +603,8 @@ int main(int ac, char **av)
 	printf("(%s)\n", param.EA);
 	printf("(%s)\n", param.WE);
 	printf("(%s)\n", param.SO);
-	printf_map(&param);
-	printf("long_line = %d\n", param.long_line);
+	// printf_map(&param);
+	printf("long_line = %lu\n", param.long_line);
 	printf("height_map = %d\n", param.height_map);
 
 	// printf("x = %d\n", param.x_player);

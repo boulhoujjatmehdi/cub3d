@@ -6,7 +6,7 @@
 /*   By: eboulhou <eboulhou@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/10/24 18:23:06 by eboulhou          #+#    #+#             */
-/*   Updated: 2023/11/04 15:29:51 by eboulhou         ###   ########.fr       */
+/*   Updated: 2023/11/04 16:52:14 by eboulhou         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -355,8 +355,8 @@ void	draw_strip(t_data *data, t_ray *ray)
 //functions to count the distance between the player and the wall
 void	set_distance(t_data *data, t_wall *wall)
 {
-	wall->vert_distance = (data->height * data->width) * data->sq_dim;
-	wall->horz_distance = (data->height * data->width) * data->sq_dim;
+	wall->vert_distance = INT64_MAX;
+	wall->horz_distance = INT64_MAX;
 	if (wall->vert_found_wall)
 	{
 		wall->vert_distance = sqrt((wall->vert_x - data->ppos_x)
@@ -497,7 +497,7 @@ void	initialize_data(t_data *data, t_param *params)
 		free_data(data, 11);
 	data->floor_color = params->rgb_F;
 	data->ceiling_color = params->rgb_C;
-	data->width = (params->long_line - 1) * data->sq_dim;
+	data->width = (params->long_line - 2) * data->sq_dim;
 	data->height = (params->height_map - 1) * data->sq_dim;
 	data->num_rays = data->win_w;
 	data->ppos_x = params->x_player;
