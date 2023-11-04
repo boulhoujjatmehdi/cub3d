@@ -6,7 +6,7 @@
 #    By: eboulhou <eboulhou@student.42.fr>          +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2023/08/14 15:54:50 by rarraji           #+#    #+#              #
-#    Updated: 2023/11/04 13:34:26 by eboulhou         ###   ########.fr        #
+#    Updated: 2023/11/04 17:12:24 by eboulhou         ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
@@ -16,12 +16,18 @@ CC		= cc
 FSAN  	= -g -fsanitize=address
 FLAGS	= -Wall -Wextra -Werror $(FSAN)
 RM		= rm -rf
-SRC		= 	get_next_line_utils.c \
-			mehdiCub3d.c\
-			get_next_line.c\
-			parse.c
+P1		= mehdiCub3d.c
+RAY	= $(addprefix ray_tex/, $(P1))
+P2		= parse.c get_next_line.c get_next_line_utils.c
+PAR     = $(addprefix parse/, $(P2))
 
-# 
+
+
+
+SRC		= 	$(RAY) $(PAR)\
+			
+			
+FSAN		= -g -fsanitize=address
 IMLX		= -I MLX42/include
 MLX			= MLX42/build/libmlx42.a
 LIBFT		= libft/libft.a

@@ -1,4 +1,4 @@
-#include "cub3d.h"
+#include "../cub3d.h"
 
 int	ft_cnt_line(char *av1)
 {
@@ -175,7 +175,7 @@ int	ft_search_player_2(t_param *vars, int y)
 		while (vars->last_map[i][x])
 		{
 			if (ft_strchr("NSEW 10\n", vars->last_map[i][x]) == NULL)
-				return (0);
+				return (1);
 			else if (ft_strchr("NSEW", vars->last_map[i][x]) != NULL)
 			{
 				vars->x_player = x;
@@ -203,7 +203,7 @@ int	ft_search_player(t_param *vars)
 	vars->last_map = (char **)malloc(sizeof(char *) * \
 		(vars->last_line - vars->first_line + 2));
 	cnt = ft_search_player_2(vars, y);
-	check_long_line(vars);
+	// check_long_line(vars);
 	return (cnt);
 }
 
@@ -218,7 +218,7 @@ int	ft_cnt_param(t_param *var)
 	cnt = 0;
 	var->first_line = 0;
 	while (var->map_trim[++i])
-	{
+	{ 
 		if (ft_strchr("WSNEFC", var->map_trim[i][0]) != NULL)
 			cnt++;
 		else if (var->map_trim[i][0] == '1')
@@ -321,6 +321,8 @@ int	ft_check_space(t_param *vars)
 		x = 0;
 		while (vars->last_map[y][x])
 		{
+			if (!ft_strchr("NSWE01 ", vars->last_map[y][x]))
+				return (1);
 			if (ft_strchr("NSWE0", vars->last_map[y][x]))
 			{
 				check = space_exist(vars->last_map, x, y);
@@ -351,6 +353,8 @@ int	chec_verg(char *str)
 		return (1);
 	return (0);
 }
+
+
 
 int	check_color(t_param *vars)
 {
@@ -540,6 +544,17 @@ void	free_all_map(char **vars)
 	free(vars);
 }
 
+void printf_map(t_param *vars)
+{
+	int i = 0;
+	while(vars->map_mehdi[i])
+	{
+		printf("%d ----> %s\n", i, vars->map_mehdi[i]);
+		i++;	
+	}
+}
+
+
 int main(int ac, char **av)
 {
 	char **c;
@@ -590,6 +605,10 @@ int main(int ac, char **av)
 	printf("(%s)\n", param.EA);
 	printf("(%s)\n", param.WE);
 	printf("(%s)\n", param.SO);
+	// printf_map(&param);
+	printf("long_line = %lu\n", param.long_line);
+	printf("height_map = %d\n", param.height_map);
+
 	// printf("x = %d\n", param.x_player);
 	// printf("y = %d\n", param.y_player);
 	// printf("height_map = %d\n", param.height_map);

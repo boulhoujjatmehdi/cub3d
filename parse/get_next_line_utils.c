@@ -3,14 +3,14 @@
 /*                                                        :::      ::::::::   */
 /*   get_next_line_utils.c                              :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: rarraji <rarraji@student.42.fr>            +#+  +:+       +#+        */
+/*   By: eboulhou <eboulhou@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/11/01 12:48:55 by rarraji           #+#    #+#             */
-/*   Updated: 2023/10/11 20:04:36 by rarraji          ###   ########.fr       */
+/*   Updated: 2023/11/04 17:12:58 by eboulhou         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#include "cub3d.h"
+#include "../cub3d.h"
 
 int	ft_strlen1(char *s)
 {
