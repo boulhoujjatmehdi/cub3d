@@ -599,7 +599,7 @@ int main(int ac, char **av)
 	// free(param.C);
 	// free(param.F);
 	// {
-	// 	ft_bzero(&param, sizeof(param));
+	// 	ft_bzero(&param, sizeof(param));  
 	// 	system("leaks CUB3D");
 	// 	exit(1);
 	// }
