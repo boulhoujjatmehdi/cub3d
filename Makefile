@@ -6,19 +6,18 @@
 #    By: eboulhou <eboulhou@student.42.fr>          +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2023/08/14 15:54:50 by rarraji           #+#    #+#              #
-#    Updated: 2023/11/03 12:52:51 by eboulhou         ###   ########.fr        #
+#    Updated: 2023/11/04 13:34:26 by eboulhou         ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
 NAME	= CUB3D
 	
 CC		= cc
-FSAN  	=  -fsanitize=address -g
+FSAN  	= -g -fsanitize=address
 FLAGS	= -Wall -Wextra -Werror $(FSAN)
 RM		= rm -rf
 SRC		= 	get_next_line_utils.c \
 			mehdiCub3d.c\
-			ft_printf.c\
 			get_next_line.c\
 			parse.c
 
@@ -35,13 +34,16 @@ RED = \033[0;31m
 GREEN = \033[0;32m
 YELLOW = \033[0;33m
 
+
+
 %.o : %.c
 	${CC} ${CFLAGS} -c $< -o $@
 
-run: all
-	@./CUB3D map.ber
 
 all: $(NAME)
+
+run: all
+	@./CUB3D map.ber
 
 $(NAME): $(OBJ) $(LIBFT) 
 	@printf "$(YELLOW) Compiling $(NAME)... \n"
@@ -63,4 +65,5 @@ fclean: clean
 	$(RM) $(NAME)
 	@printf "$(RED)    - Executable removed.\n"
 
-re: fclean run
+re: fclean all
+

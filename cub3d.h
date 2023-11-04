@@ -99,62 +99,101 @@ typedef struct s_vars
 }				t_vars;
 
 
+# include <unistd.h>
+# include <stdlib.h>
+# include <fcntl.h>
+# include <math.h>
+# include "MLX42/Include/MLX42.h"
+# include "libft/libft.h"
+# include "stdio.h"
 
-// --------------------------------------------//
-// typedef struct s_wall
-// {
-//     float horz_found_wall;
-//     float horz_distance;
-//     int horz_x;
-//     int horz_y;
+enum e_direction
+{
+	NORTH = 1,
+	SOUTH = 2,
+	EAST = 3,
+	WEST = 4
+};
 
-//     float vert_found_wall;
-//     float vert_distance;
-//     int vert_x;
-//     int vert_y;
-// } t_wall;
+char	*get_next_line(int fd);
 
-// typedef struct s_data
-// {
-//     char    **mat;
-//     int     height;
-//     int     width;
-//     void*   mlx_in;
-//     void*   mlx_im;
-//     void*   mlx_wi;
+typedef struct s_wall
+{
+	int		horz_found_wall;
+	float	horz_distance;
+	int		horz_x;
+	int		horz_y;
 
-//     //window: height
-//     int     win_h;
-//     //window: width
-//     int     win_w;
-//     //square dimentions
-//     int     sq_dim;
-//     //player rotation angle
-//     int     rotation_angle;
-//     //player radius
-//     int     p_rad;;
-//     //player position x
-//     float   ppos_x;
-//     //player position y
-//     float   ppos_y;
-//     //player view angle
-//     double  p_angle;
+	int		vert_found_wall;
+	float	vert_distance;
+	int		vert_x;
+	int		vert_y;
+	int		direction;
+}	t_wall;
 
+typedef struct s_data
+{
+	char			**mat;
+	int				height;
+	int				width;
+	void			*mlx_in;
+	void			*mlx_im;
+	void			*mlx_wi;
+	int				win_h;
+	int				win_w;
+	int				sq_dim;
+	int				rotation_angle;
+	int				p_rad;
+	int				p_speed;
+	float			ppos_x;
+	float			ppos_y;
+	float			p_angle;
+	mlx_texture_t	*txt_n;
+	mlx_texture_t	*txt_s;
+	mlx_texture_t	*txt_e;
+	mlx_texture_t	*txt_w;
+	mlx_texture_t	*txt;
+	uint32_t		floor_color;
+	uint32_t		ceiling_color;
+	float			fov;
+	int				num_rays;
+	float			mini_scale;
+}t_data;
 
-//     //raycasting
-//     //field of view
-//     float   fov;
-//     //number of rays
-//     int     num_rays;
-//     //minimap scale
-//     float   mini_scale;
+typedef struct s_ray
+{
+	float	x_inter;
+	float	y_inter;
+	float	x_stp;
+	float	y_stp;
+	int		is_up;
+	int		is_left;
+	float	next_touch_x;
+	float	next_touch_y;
+	float	check_x;
+	float	check_y;
+	int		i;
+	int		j;
+	float	angle;
+	float	step;
+	bool	test;
+	float	lenght;
+	float	dist_proj_plan;
+	float	wall_height;
+	int		x_offset;
+	int		y_offset;
+}t_ray;
 
-// }t_data;
-
-// --------------------------------------------//
-
-// typedef struct	s_data {
-// }				t_data;
+typedef struct s_draw
+{
+	float	strip_height;
+	int		y_0;
+	int		y;
+	int		i;
+	int		y_offset;
+	int		top_dist;
+	int		color;
+}t_draw;
 
 int		ft_printf(const char *str, ...);
 int		ft_putchar(int c);
