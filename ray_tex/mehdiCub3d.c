@@ -6,12 +6,12 @@
 /*   By: eboulhou <eboulhou@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/10/24 18:23:06 by eboulhou          #+#    #+#             */
-/*   Updated: 2023/11/04 13:39:22 by eboulhou         ###   ########.fr       */
+/*   Updated: 2023/11/04 15:29:51 by eboulhou         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 // #include "mehdiCub3d.h"
-#include "cub3d.h"
+#include "../cub3d.h"
 
 void	free_data(t_data *data, int exit_code)
 {

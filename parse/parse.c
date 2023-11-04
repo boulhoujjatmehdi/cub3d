@@ -1,4 +1,4 @@
-#include "cub3d.h"
+#include "../cub3d.h"
 
 int	ft_cnt_line(char *av1)
 {
@@ -352,6 +352,8 @@ int	chec_verg(char *str)
 	return (0);
 }
 
+
+
 int	check_color(t_param *vars)
 {
 	int	check;
@@ -540,6 +542,17 @@ void	free_all_map(char **vars)
 	free(vars);
 }
 
+void printf_map(t_param *vars)
+{
+	int i = 0;
+	while(vars->map_mehdi[i])
+	{
+		printf("%d ----> %s\n", i, vars->map_mehdi[i]);
+		i++;	
+	}
+}
+
+
 int main(int ac, char **av)
 {
 	char **c;
@@ -590,6 +603,10 @@ int main(int ac, char **av)
 	printf("(%s)\n", param.EA);
 	printf("(%s)\n", param.WE);
 	printf("(%s)\n", param.SO);
+	printf_map(&param);
+	printf("long_line = %d\n", param.long_line);
+	printf("height_map = %d\n", param.height_map);
+
 	// printf("x = %d\n", param.x_player);
 	// printf("y = %d\n", param.y_player);
 	// printf("height_map = %d\n", param.height_map);
