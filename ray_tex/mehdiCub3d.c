@@ -6,12 +6,42 @@
 /*   By: eboulhou <eboulhou@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/10/24 18:23:06 by eboulhou          #+#    #+#             */
-/*   Updated: 2023/11/01 16:55:12 by eboulhou         ###   ########.fr       */
+/*   Updated: 2023/11/04 13:39:22 by eboulhou         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#include "mehdiCub3d.h"
+// #include "mehdiCub3d.h"
 #include "cub3d.h"
+
+void	free_data(t_data *data, int exit_code)
+{
+	int	i;
+
+	i = 0;
+	if (data->mat == NULL)
+		return ;
+	while (data->mat[i])
+	{
+		free(data->mat[i]);
+		i++;
+	}
+	free(data->mat);
+	if (data->txt_n)
+		mlx_delete_texture(data->txt_n);
+	if (data->txt_s)
+		mlx_delete_texture(data->txt_s);
+	if (data->txt_e)
+		mlx_delete_texture(data->txt_e);
+	if (data->txt_w)
+		mlx_delete_texture(data->txt_w);
+	if (data->mlx_im)
+		mlx_delete_image(data->mlx_in, data->mlx_im);
+	// data = NULL;
+	printf("ERROR\n");
+	// system("leaks CUB3D");
+	ft_bzero(data, sizeof(t_data));
+	exit(exit_code);
+}
 
 void	lire_map(t_data *data, char *av)
 {
@@ -154,9 +184,8 @@ void	mouvements(t_data *pr)
 	rotate_player(pr);
 	move_player_forward_backward(pr);
 	move_player_left_right(pr);
-	if (mlx_is_key_down(pr->mlx_in, MLX_KEY_Q)
-		|| mlx_is_key_down(pr->mlx_in, MLX_KEY_ESCAPE))
-		exit(0);
+	if (mlx_is_key_down(pr->mlx_in, MLX_KEY_ESCAPE))
+		free_data(pr, 0);
 }
 
 void	normalize_angle(float *angle)
@@ -438,60 +467,16 @@ void	vue_angle(t_data *param)
 
 	x = param->ppos_x;
 	y = param->ppos_y;
-
-	// y = 0;
-	// param->p_angle = 1;
-	// while (param->mat[y] != NULL)
-	// {
-	// 	x = 0;
-	// 	while (param->mat[y][x] != '\0')
-	// 	{
-			if (param->mat[y][x] == 'N')
-				param->p_angle = M_PI_2 * 3;
-			else if (param->mat[y][x] == 'E')
-				param->p_angle = 0;
-			else if (param->mat[y][x] == 'S')
-				param->p_angle = M_PI_2;
-			else if (param->mat[y][x] == 'W')
-				param->p_angle = M_PI;
-	// 		if (param->p_angle != 1)
-	// 		{
-				param->ppos_y = (y * param->sq_dim) + (param->sq_dim / 2);
-				param->ppos_x = (x * param->sq_dim) + (param->sq_dim / 2);
-	// 			return ;
-	// 		}
-	// 		x++;
-	// 	}
-	// 	y++;
-	// }
-	printf("angle = %f\n", param->p_angle);
-}
-
-void	free_data(t_data *data, int exit_code)
-{
-	int	i;
-
-	i = 0;
-	if (data->mat == NULL)
-		return ;
-	while (data->mat[i])
-	{
-		free(data->mat[i]);
-		i++;
-	}
-	free(data->mat);
-	if (data->txt_n)
-		mlx_delete_texture(data->txt_n);
-	if (data->txt_s)
-		mlx_delete_texture(data->txt_s);
-	if (data->txt_e)
-		mlx_delete_texture(data->txt_e);
-	if (data->txt_w)
-		mlx_delete_texture(data->txt_w);
-	if (data->mlx_im)
-		mlx_delete_image(data->mlx_in, data->mlx_im);
-	data = NULL;
-	exit(exit_code);
+	if (param->mat[y][x] == 'N')
+		param->p_angle = M_PI_2 * 3;
+	else if (param->mat[y][x] == 'E')
+		param->p_angle = 0;
+	else if (param->mat[y][x] == 'S')
+		param->p_angle = M_PI_2;
+	else if (param->mat[y][x] == 'W')
+		param->p_angle = M_PI;
+	param->ppos_y = (y * param->sq_dim) + (param->sq_dim / 2);
+	param->ppos_x = (x * param->sq_dim) + (param->sq_dim / 2);
 }
 
 void	initialize_data(t_data *data, t_param *params)
@@ -509,7 +494,7 @@ void	initialize_data(t_data *data, t_param *params)
 	data->txt_n = mlx_load_png(params->NO);
 	data->txt_s = mlx_load_png(params->SO);
 	if (!data->txt_e || !data->txt_w || !data->txt_n || !data->txt_s)
-		free_data(data, 1);
+		free_data(data, 11);
 	data->floor_color = params->rgb_F;
 	data->ceiling_color = params->rgb_C;
 	data->width = (params->long_line - 1) * data->sq_dim;
@@ -517,13 +502,7 @@ void	initialize_data(t_data *data, t_param *params)
 	data->num_rays = data->win_w;
 	data->ppos_x = params->x_player;
 	data->ppos_y = params->y_player;
-	printf("-------------------\n");
-	printf("floor = %d\n", data->floor_color);
-	printf("ceiling = %d\n", data->ceiling_color);
-	printf("width = %lu\n", params->long_line);
-	printf("height = %d\n", params->height_map);
-	printf("x = %f\n", data->ppos_x);
-	printf("y = %f\n", data->ppos_y);
+	
 }
 
 int	display(t_param *params)
@@ -538,9 +517,11 @@ int	display(t_param *params)
 		free_data(&data, 1);
 	data.mlx_im = mlx_new_image(data.mlx_in, data.win_w, data.win_h);
 	if (!data.mlx_im)
-		free_data(&data, 1);
-	mlx_image_to_window(data.mlx_in, data.mlx_im, 0, 0);
-	mlx_loop_hook(data.mlx_in, draw, &data);
+		free_data(&data, 2);
+	if(mlx_image_to_window(data.mlx_in, data.mlx_im, 0, 0) == -1)
+		free_data(&data, 3);
+	if(!mlx_loop_hook(data.mlx_in, draw, &data))
+		free_data(&data, 4);
 	mlx_loop(data.mlx_in);
 	return (0);
 }
