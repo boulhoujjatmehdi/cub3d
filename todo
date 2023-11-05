@@ -7,4 +7,6 @@ remove fsanitize
 
 limit the (width) and (height) of the map to (50,000)
 
-error : a character is integrated in the map
+error : a character is integrated in the map ✅
+
+dont print (error) if exit is 0
