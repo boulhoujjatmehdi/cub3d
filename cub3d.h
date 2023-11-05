@@ -49,6 +49,7 @@ typedef struct s_param
 		int		y_player;
 		int 	first_nl;
 		int		height_map;
+		int		tmp;
 		// char *tab[7];
 		size_t long_line;
 }		t_param;

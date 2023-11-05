@@ -79,11 +79,6 @@ int	check_nl(char *s)
 		i = ft_strlen2(s)-1;
 	else
 		i = ft_strlen(s);
-
-		// printf("s == [%s]\n", s);
-
-
-		// ft_strtrim()
 	return (i);
 }
 
@@ -115,7 +110,7 @@ int	check_line(char *s1, char *s2)
 		len = ft_strlen2(s1);
 	else
 		len = ft_strlen2(s2);
-	return (len);			
+	return (len);
 }
 int	check_par(t_param *var)
 {
@@ -143,7 +138,7 @@ int	check_par(t_param *var)
 			}
 		}
 	}
-	return (cnt);	
+	return (cnt);
 }
 
 void	check_long_line(t_param *vars)
@@ -160,14 +155,10 @@ void	check_long_line(t_param *vars)
 	}
 }
 
-int	ft_search_player_2(t_param *vars, int y)
+int	ft_search_player_2(t_param *vars, int y, int cnt, int i)
 {
-	int	cnt;
 	int	x;
-	int	i;
 
-	cnt = 0;
-	i = 0;
 	while (vars->map[y])
 	{
 		vars->last_map[i] = ft_substr(vars->map[y], 0, ft_strlen(vars->map[y]));
@@ -197,12 +188,14 @@ int	ft_search_player(t_param *vars)
 {
 	int	y;
 	int	cnt;
+	int i;
 
 	cnt = 0;
+	i = 0;
 	y = vars->first_line;
 	vars->last_map = (char **)malloc(sizeof(char *) * \
 		(vars->last_line - vars->first_line + 2));
-	cnt = ft_search_player_2(vars, y);
+	cnt = ft_search_player_2(vars, y, cnt, i);
 	// check_long_line(vars);
 	return (cnt);
 }
@@ -211,22 +204,19 @@ int	ft_cnt_param(t_param *var)
 {
 	int	i;
 	int	cnt;
-	int	tmp;
 
-	tmp = 0;
 	i = -1;
 	cnt = 0;
-	var->first_line = 0;
 	while (var->map_trim[++i])
 	{ 
 		if (ft_strchr("WSNEFC", var->map_trim[i][0]) != NULL)
 			cnt++;
 		else if (var->map_trim[i][0] == '1')
 		{
-			if (tmp == 0)
+			if (var->tmp == 0)
 			{
 				var->first_line = i;
-				tmp = 1;
+				var->tmp = 1;
 			}
 			if (cnt < 6)
 				return (1);
