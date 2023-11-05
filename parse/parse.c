@@ -321,7 +321,7 @@ int	ft_check_space(t_param *vars)
 		x = 0;
 		while (vars->last_map[y][x])
 		{
-			if (!ft_strchr("NSWE01 ", vars->last_map[y][x]))
+			if (!ft_strchr("NSWE01 \n", vars->last_map[y][x]))
 				return (1);
 			if (ft_strchr("NSWE0", vars->last_map[y][x]))
 			{
