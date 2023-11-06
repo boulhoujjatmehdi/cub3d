@@ -6,7 +6,7 @@
 #    By: eboulhou <eboulhou@student.42.fr>          +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2023/08/14 15:54:50 by rarraji           #+#    #+#              #
-#    Updated: 2023/11/04 17:12:24 by eboulhou         ###   ########.fr        #
+#    Updated: 2023/11/05 10:35:29 by eboulhou         ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
@@ -14,28 +14,22 @@ NAME	= CUB3D
 	
 CC		= cc
 FSAN  	= -g -fsanitize=address
-FLAGS	= -Wall -Wextra -Werror $(FSAN)
+FLAGS	= $(FSAN) -Wall -Wextra -Werror 
 RM		= rm -rf
 P1		= mehdiCub3d.c
 RAY	= $(addprefix ray_tex/, $(P1))
 P2		= parse.c get_next_line.c get_next_line_utils.c
 PAR     = $(addprefix parse/, $(P2))
+SRC		= 	$(RAY) $(PAR)
 
 
-
-
-SRC		= 	$(RAY) $(PAR)\
-			
-			
-FSAN		= -g -fsanitize=address
 IMLX		= -I MLX42/include
 MLX			= MLX42/build/libmlx42.a
 LIBFT		= libft/libft.a
 FRAMEWORKS	= -framework Cocoa -framework OpenGL -framework IOKit
 GLFW       	= -Iinclude -lglfw -L"/goinfre/$(USER)/homebrew/opt/glfw/lib/"
 OBJ			= $(SRC:.c=.o)
-# 
-#Colors:
+
 RED = \033[0;31m
 GREEN = \033[0;32m
 YELLOW = \033[0;33m
@@ -43,7 +37,7 @@ YELLOW = \033[0;33m
 
 
 %.o : %.c
-	${CC} ${CFLAGS} -c $< -o $@
+	${CC}  ${FLAGS} -c $< -o $@
 
 
 all: $(NAME)
@@ -53,11 +47,8 @@ run: all
 
 $(NAME): $(OBJ) $(LIBFT) 
 	@printf "$(YELLOW) Compiling $(NAME)... \n"
-	$(CC)  $(FSAN) $(OBJ) $(LIBFT) $(MLX) $(GLFW)  -o $(NAME)  
+	$(CC)  $(FLAGS) $(OBJ) $(LIBFT) $(MLX) $(GLFW)  -o $(NAME)  
 	@printf "$(GREEN) Executable ready.\n"
-
-%.o : %.c
-	$(CC)  $(FSAN) -c $< -o $@ 
 
 $(LIBFT):
 	make -C libft

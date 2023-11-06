@@ -348,8 +348,6 @@ int	chec_verg(char *str)
 
 int	check_color(t_param *vars)
 {
-	int	check;
-
 	if (chec_verg(vars->C) == 1 || chec_verg(vars->F) == 1)
 		return (1);
 	if (vars->C[ft_strlen(vars->C)] == ','\
