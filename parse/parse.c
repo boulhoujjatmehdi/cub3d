@@ -175,7 +175,7 @@ int	ft_search_player_2(t_param *vars, int y)
 		while (vars->last_map[i][x])
 		{
 			if (ft_strchr("NSEW 10\n", vars->last_map[i][x]) == NULL)
-				return (0);
+				return (1);
 			else if (ft_strchr("NSEW", vars->last_map[i][x]) != NULL)
 			{
 				vars->x_player = x;
@@ -203,7 +203,7 @@ int	ft_search_player(t_param *vars)
 	vars->last_map = (char **)malloc(sizeof(char *) * \
 		(vars->last_line - vars->first_line + 2));
 	cnt = ft_search_player_2(vars, y);
-	check_long_line(vars);
+	// check_long_line(vars);
 	return (cnt);
 }
 
@@ -321,6 +321,8 @@ int	ft_check_space(t_param *vars)
 		x = 0;
 		while (vars->last_map[y][x])
 		{
+			if (!ft_strchr("NSWE01 \n", vars->last_map[y][x]))
+				return (1);
 			if (ft_strchr("NSWE0", vars->last_map[y][x]))
 			{
 				check = space_exist(vars->last_map, x, y);
@@ -356,8 +358,6 @@ int	chec_verg(char *str)
 
 int	check_color(t_param *vars)
 {
-	int	check;
-
 	if (chec_verg(vars->C) == 1 || chec_verg(vars->F) == 1)
 		return (1);
 	if (vars->C[ft_strlen(vars->C)] == ','\
@@ -553,7 +553,7 @@ void printf_map(t_param *vars)
 }
 
 
-int main(int ac, char **av)
+int main1(int ac, char **av)
 {
 	char **c;
 	// int  i = 0;
@@ -597,15 +597,15 @@ int main(int ac, char **av)
 	// exit(1);
 	// printf("rgb_C = %d\n", param.rgb_C);
 	// printf("rgb_F = %d\n", param.rgb_F);
-	printf("%s\n", param.C);
-	printf("%s\n", param.F);
-	printf("(%s)\n", param.NO);
-	printf("(%s)\n", param.EA);
-	printf("(%s)\n", param.WE);
-	printf("(%s)\n", param.SO);
+	// printf("%s\n", param.C);
+	// printf("%s\n", param.F);
+	// printf("(%s)\n", param.NO);
+	// printf("(%s)\n", param.EA);
+	// printf("(%s)\n", param.WE);
+	// printf("(%s)\n", param.SO);
 	// printf_map(&param);
-	printf("long_line = %lu\n", param.long_line);
-	printf("height_map = %d\n", param.height_map);
+	// printf("long_line = %lu\n", param.long_line);
+	// printf("height_map = %d\n", param.height_map);
 
 	// printf("x = %d\n", param.x_player);
 	// printf("y = %d\n", param.y_player);
@@ -622,13 +622,13 @@ int main(int ac, char **av)
 	// }
 
 	display(&param);
+	puts("end");
 return 0;
 }
 
-// int main(int av, char **ac)
-// {
-// 	t_param param;
-// 	main1(av, ac, &param);
-// 	system("leaks CUB3D");
-// 	return(0);
-// }
+int main(int av, char **ac)
+{
+	main1(av, ac);
+	system("leaks CUB3D");
+	return(0);
+}

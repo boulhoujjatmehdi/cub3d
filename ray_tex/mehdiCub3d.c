@@ -6,7 +6,7 @@
 /*   By: eboulhou <eboulhou@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/10/24 18:23:06 by eboulhou          #+#    #+#             */
-/*   Updated: 2023/11/04 16:52:14 by eboulhou         ###   ########.fr       */
+/*   Updated: 2023/11/05 13:05:06 by eboulhou         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -36,10 +36,8 @@ void	free_data(t_data *data, int exit_code)
 		mlx_delete_texture(data->txt_w);
 	if (data->mlx_im)
 		mlx_delete_image(data->mlx_in, data->mlx_im);
-	// data = NULL;
-	printf("ERROR\n");
-	// system("leaks CUB3D");
-	ft_bzero(data, sizeof(t_data));
+	if(exit_code)
+		ft_putstr_fd("Error\n", 2);
 	exit(exit_code);
 }
 
@@ -438,9 +436,7 @@ void	wall_projection(t_data *data)
 	while (ray.i < data->num_rays)
 	{
 		normalize_angle(&ray.angle);
-		normalize_angle(&data->p_angle);
-		wall.horz_found_wall = false;
-		wall.vert_found_wall = false;
+		ft_bzero(&wall, sizeof(t_wall));
 		horizontal(data, ray.angle, &wall);
 		verticall(data, ray.angle, &wall);
 		set_distance(data, &wall);
@@ -494,7 +490,7 @@ void	initialize_data(t_data *data, t_param *params)
 	data->txt_n = mlx_load_png(params->NO);
 	data->txt_s = mlx_load_png(params->SO);
 	if (!data->txt_e || !data->txt_w || !data->txt_n || !data->txt_s)
-		free_data(data, 11);
+		free_data(data, 5);
 	data->floor_color = params->rgb_F;
 	data->ceiling_color = params->rgb_C;
 	data->width = (params->long_line - 2) * data->sq_dim;
@@ -523,5 +519,6 @@ int	display(t_param *params)
 	if(!mlx_loop_hook(data.mlx_in, draw, &data))
 		free_data(&data, 4);
 	mlx_loop(data.mlx_in);
+	free_data(&data, 0);
 	return (0);
 }
