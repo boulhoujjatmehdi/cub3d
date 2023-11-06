@@ -79,6 +79,11 @@ int	check_nl(char *s)
 		i = ft_strlen2(s)-1;
 	else
 		i = ft_strlen(s);
+
+		// printf("s == [%s]\n", s);
+
+
+		// ft_strtrim()
 	return (i);
 }
 
@@ -96,10 +101,11 @@ void	remplir_var(char *line, t_param *var)
 	else if (line[0] == 'E')
 		var->EA = ft_substr(split[1], 0, check_nl(split[1]));
 	else if (line[0] == 'F')
-		var->F = ft_substr(split[1], 0, ft_strlen(split[1]));
+		var->F = ft_substr(line, 0, ft_strlen(line));
 	else
-		var->C = ft_substr(split[1], 0, ft_strlen(split[1]));
-	free_all_map(split);
+		var->C = ft_substr(line, 0, ft_strlen(line));
+	// if(line[0] != 'C' && line[0] != 'F')
+		free_all_map(split);
 }
 int	check_line(char *s1, char *s2)
 {
@@ -110,7 +116,7 @@ int	check_line(char *s1, char *s2)
 		len = ft_strlen2(s1);
 	else
 		len = ft_strlen2(s2);
-	return (len);
+	return (len);			
 }
 int	check_par(t_param *var)
 {
@@ -138,7 +144,7 @@ int	check_par(t_param *var)
 			}
 		}
 	}
-	return (cnt);
+	return (cnt);	
 }
 
 void	check_long_line(t_param *vars)
@@ -155,10 +161,14 @@ void	check_long_line(t_param *vars)
 	}
 }
 
-int	ft_search_player_2(t_param *vars, int y, int cnt, int i)
+int	ft_search_player_2(t_param *vars, int y)
 {
+	int	cnt;
 	int	x;
+	int	i;
 
+	cnt = 0;
+	i = 0;
 	while (vars->map[y])
 	{
 		vars->last_map[i] = ft_substr(vars->map[y], 0, ft_strlen(vars->map[y]));
@@ -188,15 +198,12 @@ int	ft_search_player(t_param *vars)
 {
 	int	y;
 	int	cnt;
-	int i;
 
 	cnt = 0;
-	i = 0;
 	y = vars->first_line;
 	vars->last_map = (char **)malloc(sizeof(char *) * \
 		(vars->last_line - vars->first_line + 2));
-	cnt = ft_search_player_2(vars, y, cnt, i);
-	// check_long_line(vars);
+	cnt = ft_search_player_2(vars, y);
 	return (cnt);
 }
 
@@ -204,19 +211,22 @@ int	ft_cnt_param(t_param *var)
 {
 	int	i;
 	int	cnt;
+	int	tmp;
 
+	tmp = 0;
 	i = -1;
 	cnt = 0;
+	var->first_line = 0;
 	while (var->map_trim[++i])
-	{ 
+	{
 		if (ft_strchr("WSNEFC", var->map_trim[i][0]) != NULL)
 			cnt++;
 		else if (var->map_trim[i][0] == '1')
 		{
-			if (var->tmp == 0)
+			if (tmp == 0)
 			{
 				var->first_line = i;
-				var->tmp = 1;
+				tmp = 1;
 			}
 			if (cnt < 6)
 				return (1);
@@ -262,18 +272,22 @@ int	check_range(char **color)
 
 int	ft_check_is_digit(char *color)
 {
+	char	**check1;
 	char	**check;
 	int		i;
 
 	i = 0;
-	check = ft_split(color, ',');
+	check1 = ft_split(color, ' ');
+	check = ft_split(check1[1], ',');
 	while (check[i])
 		i++;
+	// printf("this is i : %d\n", i);
 	if (i != 3)
 		return (1);
 	i = 0;
 	while (check[i])
 	{
+		// printf("--->%s\n", check[i]);
 		if (check_string_is_digit(check[i]))
 			return (1);
 		i++;
@@ -281,6 +295,7 @@ int	ft_check_is_digit(char *color)
 	if (check_range(check))
 		return (1);
 	free_all_map(check);
+	free_all_map(check1);
 	return (0);
 }
 
@@ -291,9 +306,9 @@ int	space_exist(char **map, int x, int y)
 		return (1);
 	if (!(ft_strchr("NSWE01", map[y][x + 1])))
 		return (1);
-	if (!(ft_strchr("NSWE01", map[y - 1][x])))
+	if (ft_strlen(map[y - 1]) <= (size_t)x || !(ft_strchr("NSWE01", map[y - 1][x])))
 		return (1);
-	if (!(ft_strchr("NSWE01", map[y + 1][x])))
+	if (ft_strlen(map[y + 1]) <= (size_t)x || !(ft_strchr("NSWE01", map[y + 1][x])))
 		return (1);
 	return (0);
 }
@@ -350,19 +365,20 @@ int	check_color(t_param *vars)
 {
 	if (chec_verg(vars->C) == 1 || chec_verg(vars->F) == 1)
 		return (1);
-	if (vars->C[ft_strlen(vars->C)] == ','\
-		|| !ft_isdigit(vars->C[ft_strlen(vars->C) - 2]) \
-		||vars->F[ft_strlen(vars->F)] == ',' \
-		|| !ft_isdigit(vars->F[ft_strlen(vars->F) - 2]))
+	// if (vars->C[ft_strlen(vars->C)] == ',' || !ft_isdigit(vars->C[ft_strlen(vars->C) - 2]) || vars->F[ft_strlen(vars->F)] == ',' || !ft_isdigit(vars->F[ft_strlen(vars->F) - 2]))
+	// 	return (1);
+	if (ft_isdigit(vars->C[2]) == 0)
+	{
 		return (1);
-	if (ft_isdigit(vars->C[0]) == 0)
+	}
+	if (ft_isdigit(vars->F[2]) == 0)
 		return (1);
-	if (ft_isdigit(vars->F[0]) == 0)
-		return (1);
-	if (ft_strncmp(vars->C, "C" , 2) == 0) //hsb wach homa 2
+	if (ft_strncmp(vars->C, "C" , 1) == 0)
+	{
 		if (ft_check_is_digit(vars->C))
 			return (1);
-	if (ft_strncmp(vars->F, "F" , 2) == 0) //hsb wach homa 2
+	} //hsb wach homa 2
+	if (ft_strncmp(vars->F, "F" , 1) == 0) //hsb wach homa 2
 		if (ft_check_is_digit(vars->F))
 			return (1);
 	return (0);
@@ -543,7 +559,7 @@ void printf_map(t_param *vars)
 }
 
 
-int main(int ac, char **av)
+int main1(int ac, char **av)
 {
 	char **c;
 	// int  i = 0;
@@ -559,14 +575,27 @@ int main(int ac, char **av)
 		free_all_map(param.map_trim);
 		free_all_map(param.map);
 		printf("EROOR 88 !!\n");
+		free(param.C);
+		free(param.F);
+		free(param.EA);
+		free(param.NO);
+		free(param.SO);
+		free(param.WE);
 		return (0);
 	}
 	if (check_first_last_line(&param) || check_jnob(&param) || ft_search_player(&param) != 1 || ft_check_space(&param))
 	{
 		free_all_map(param.map);
 		free_all_map(param.map_trim);
+		free_all_map(param.last_map);
+		free(param.C);
+		free(param.F);
+		free(param.EA);
+		free(param.NO);
+		free(param.SO);
+		free(param.WE);
 		printf("EROOR 99 !!\n");
-		system("leaks CUB3D");
+		// system("leaks CUB3D");
 		// free;
 		return (0);
 	}
@@ -587,38 +616,37 @@ int main(int ac, char **av)
 	// exit(1);
 	// printf("rgb_C = %d\n", param.rgb_C);
 	// printf("rgb_F = %d\n", param.rgb_F);
-	printf("%s\n", param.C);
-	printf("%s\n", param.F);
-	printf("(%s)\n", param.NO);
-	printf("(%s)\n", param.EA);
-	printf("(%s)\n", param.WE);
-	printf("(%s)\n", param.SO);
+	// printf("%s\n", param.C);
+	// printf("%s\n", param.F);
+	// printf("(%s)\n", param.NO);
+	// printf("(%s)\n", param.EA);
+	// printf("(%s)\n", param.WE);
+	// printf("(%s)\n", param.SO);
 	// printf_map(&param);
-	printf("long_line = %lu\n", param.long_line);
-	printf("height_map = %d\n", param.height_map);
+	// printf("long_line = %lu\n", param.long_line);
+	// printf("height_map = %d\n", param.height_map);
 
 	// printf("x = %d\n", param.x_player);
 	// printf("y = %d\n", param.y_player);
 	// printf("height_map = %d\n", param.height_map);
-	// free_all_map(param.map);
-	// free_all_map(param.map_trim);
-	// free_all_map(param.last_map);
-	// free(param.C);
-	// free(param.F);
+	free_all_map(param.map);
+	free_all_map(param.map_trim);
+	free_all_map(param.last_map);
+	free(param.C);
+	free(param.F);
 	// {
 	// 	ft_bzero(&param, sizeof(param));  
 	// 	system("leaks CUB3D");
 	// 	exit(1);
 	// }
 
-	display(&param);
+	// display(&param);
 return 0;
 }
 
-// int main(int av, char **ac)
-// {
-// 	t_param param;
-// 	main1(av, ac, &param);
-// 	system("leaks CUB3D");
-// 	return(0);
-// }
+int main(int av, char **ac)
+{
+	main1(av, ac);
+	system("leaks CUB3D");
+	return(0);
+}

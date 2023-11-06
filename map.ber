@@ -1,9 +1,9 @@
 
 
-C 77,67,67
-F 102,102,0
+C 77,67,67 
+F 102,255,0      
 
-       SO     ./pics/pillar.png  
+       SO     ./pics/pillar.png f   
        NO     ./pics/redbrick.png   
        WE     ./pics/greystone.png   
 
