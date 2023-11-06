@@ -6,7 +6,7 @@
 /*   By: eboulhou <eboulhou@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/10/24 18:23:06 by eboulhou          #+#    #+#             */
-/*   Updated: 2023/11/05 13:05:06 by eboulhou         ###   ########.fr       */
+/*   Updated: 2023/11/06 12:33:18 by eboulhou         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -387,8 +387,7 @@ int	project_horz_ray(t_data *data, t_wall *wall, t_ray *ray)
 		}
 		ray->test = false;
 		ray->lenght = wall->horz_distance * cos(data->p_angle - ray->angle);
-		ray->dist_proj_plan = (data->win_w / 2) * tan(data->fov / 2);
-		ray->wall_height = (data->sq_dim / ray->lenght) * ray->dist_proj_plan;
+		ray->wall_height = (data->win_h / ray->lenght) * data->sq_dim;
 		ray->x_offset = ((float)data->txt->width / data->sq_dim)
 			* (wall->horz_x % data->sq_dim);
 		draw_strip(data, ray);
@@ -415,8 +414,7 @@ int	project_vert_ray(t_data *data, t_wall *wall, t_ray *ray)
 		}
 		ray->test = true;
 		ray->lenght = wall->vert_distance * cos(data->p_angle - ray->angle);
-		ray->dist_proj_plan = (data->win_w / 2) * tan(data->fov / 2);
-		ray->wall_height = (data->sq_dim / ray->lenght) * ray->dist_proj_plan;
+		ray->wall_height = (data->win_h / ray->lenght) * data->sq_dim;
 		ray->x_offset = ((float)data->txt->width / data->sq_dim)
 			* (wall->vert_y % data->sq_dim);
 		draw_strip(data, ray);
