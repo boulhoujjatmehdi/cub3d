@@ -8,3 +8,21 @@ remove fsanitize
 limit the (width) and (height) of the map to (50,000)
 
 error : a character is integrated in the map
+
+
+
+C 77,67,6
+
+F      10,200,6 << this is not error
+
+
+
+       SO     ./pics/TAK.png
+       NO     ./pics/TOM.png
+       WE     ./pics/TAK.png
+       EA     ./pics/TOM.png
+       
+
+111111
+1000S1
+111111

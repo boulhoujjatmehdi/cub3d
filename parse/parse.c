@@ -92,7 +92,7 @@ int	remplir_var(char *line, t_param *var)
 	char	**split;
 
 	split = ft_split(line, ' ');
-	printf("--->%d\n", ft_cnt(split));
+	// printf("--->%d\n", ft_cnt(split));
 	if(ft_cnt(split) != 2)
 		return(1);
 	if (line[0] == 'W')
@@ -298,7 +298,7 @@ int	ft_check_is_digit(char *color)
 	i = 0;
 	while (check[i])
 	{
-		printf("--->'%s'\n", check[i]);
+		// printf("--->'%s'\n", check[i]);
 		if (check_string_is_digit(check[i]))
 			return (1);
 		i++;
@@ -533,7 +533,6 @@ void search_rgb(char *str, int *rgb)
 void	exist_file(char *av)
 {
 	int	fd;
-
 	fd = open(av, O_RDONLY);
 	if (fd == -1)
 	{
@@ -551,6 +550,7 @@ int	check_av(char *av)
 	j = 0;
 	i = 0;
 	s = ".ber";
+	
 	exist_file(av);
 	while (av[i])
 		i++;
@@ -592,23 +592,217 @@ void printf_map(t_param *vars)
 	int i = 0;
 	while(vars->map_mehdi[i])
 	{
-		printf("%d ----> %s\n", i, vars->map_mehdi[i]);
+		// printf("%d ----> %s\n", i, vars->map_mehdi[i]);
 		i++;	
 	}
 }
 
+////////////////////////////////////////////////////////////////////////////////
+int compare(char *s1, int *check)
+{
+	int tmp;
 
+	tmp = *check;
+	int bol;
+
+	bol = 1;
+	if(!ft_strncmp(s1, "C", 2) && bol++)
+		*check = *check | 1;
+	else if(!ft_strncmp(s1, "F", 2) && bol++)
+		*check = *check | 2;
+	else if(!ft_strncmp(s1, "NO", 3) && bol++)
+		*check = *check | 4;
+	else if(!ft_strncmp(s1, "EA", 3) && bol++)
+		*check = *check | 8;
+	else if(!ft_strncmp(s1, "SO", 3) && bol++)
+		*check = *check | 16;
+	else if(!ft_strncmp(s1, "WE", 3) && bol++)
+		*check = *check | 32;
+	if(bol != 1)
+	{
+		if(tmp == *check)
+			return (2);	
+		return(1);
+	}
+	return (0);
+}
+
+
+//function free_matrice 
+void free_matrice(char **matrice)
+{
+	int i = 0;
+	if(!matrice)
+		return ;
+	while(matrice[i])
+	{
+		free(matrice[i]);
+		i++;
+	}
+	free(matrice);
+}
+//function mat_lenght conts the lenght of the matrice
+int mat_lenght(char **mat)
+{
+	int i = 0;
+	while(mat[i])
+		i++;
+	return (i);
+}
+int	myatoi(const char *str)
+{
+	int		i;
+	long	ret;
+	int		neg;
+
+	i = 0;
+	ret = 0;
+	neg = 1;
+	// if(!str)
+	// 	return (-1);//todo check for null string
+	if ((str[i] == '-' || str[i] == '+') && ++i)
+		return (-1);
+	if (!ft_isdigit(str[i]))
+		return (-1);
+	while (ft_isdigit(str[i]))
+	{
+		ret = ret * 10 + str[i] - 48;
+		if (ret > 255)
+			return (-1);
+		i++;
+	}
+	if( str[i] && !ft_isdigit(str[i]))
+		return (-1);
+	return (ret);
+}
+
+int set_color(char *str, uint32_t *store_color)
+{
+	char **tmp;
+
+	tmp = ft_split(str, ',');
+		if(mat_lenght(tmp) == 3)
+		{
+			if(myatoi(tmp[0]) == -1 || myatoi(tmp[1]) == -1 || myatoi(tmp[2]) == -1)
+				return (1);
+			*store_color = create_rgb(myatoi(tmp[0]), myatoi(tmp[1]), myatoi(tmp[2]));
+		}
+		else 
+			return (1);
+	// puts("color");
+	return (0);
+}
+
+
+int set_texture(char *str, mlx_texture_t **store_texture)
+{
+	// puts("texture");
+	if(!str)
+		return (1);
+	*store_texture = mlx_load_png(str);
+	if(!*store_texture)
+		return (1);
+	// puts("texture");
+	return (0);
+}
+int  enter_data(char **mat, t_data *data)
+{
+	// char **tmp;
+
+	if(mat[0][0] == 'C' && set_color(mat[1], &data->ceiling_color ))
+		return (1);
+	else if(mat[0][0] == 'F' && set_color(mat[1], &data->floor_color))
+		return (1);
+	else if(mat[0][0] == 'N' && set_texture(mat[1], &data->txt_n))
+		return (1);
+	else if(mat[0][0] == 'E' && set_texture(mat[1], &data->txt_e))
+		return (1);
+	else if(mat[0][0] == 'W' && set_texture(mat[1], &data->txt_w))
+		return (1);
+	else if(mat[0][0] == 'S' && set_texture(mat[1], &data->txt_s))
+		return (1);
+	return (0);
+}
+
+int check_color_textures(t_param *param , t_data *data)
+{
+	int i;
+	char **spl;
+	int check;
+	int err;
+	int tmp;
+
+	i = 0;
+	err = 0;
+	check = 0;
+	while(param->map[i])
+	{
+		param->map[i][ft_strlen(param->map[i]) - 1] = '\0';
+		spl = ft_split(param->map[i], ' ');
+		if(spl && spl[0] && spl[0][0] == '1')
+		{
+			if(check != 63)
+				err = 1;
+			break ;
+		}
+		if(spl && spl[0] && spl[0][0] != '\0')
+		{
+			tmp = compare(spl[0], &check) ;
+			if(tmp == 1 && mat_lenght(spl) != 2)
+			{
+				err = 2;
+				break ;
+			}
+			else if(tmp == 1) 
+			{
+				if(enter_data(spl , data))
+				{
+					err = 4;
+					break ;
+				}
+			}
+
+			if(tmp == 2)
+				err = 3;
+		}
+		free_matrice(spl);
+		i++;
+	}
+	return err;
+}
+
+void mehdi_parse(t_param *param, t_data *data)
+{
+	int err;
+
+	err = check_color_textures(param, data);
+	if(err)
+	{
+		printf("Error (%d)\n", err);
+		exit(1);
+	}
+	// else
+
+
+	(void)data;
+}
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 int main1(int ac, char **av)
 {
+	t_data data;
+
+
 	char **c;
-	// int  i = 0;
 	t_param param;
 	(void)ac;
-	// t_param param;
 	ft_bzero(&param, sizeof(t_param));
+	ft_bzero(&data, sizeof(t_data));
 	if(check_av(av[1]))
 		return (0);
 	c = read_file(&param, av[1]);
+	
+	
+	mehdi_parse(&param, &data);
 	if (ft_cnt_param(&param) != 6 || check_par(&param) != 6 || check_color(&param))
 	{
 		free_all_map(param.map_trim);
@@ -647,6 +841,7 @@ int main1(int ac, char **av)
 	// system("leaks -p");
 	// printf("-------------------------------------------\n");
 	search_rgb(param.F, &param.rgb_F);
+	// printf("rgb_F = %d\n", param.rgb_F);
 	map_mehdi(&param);
 	search_rgb(param.C, &param.rgb_C);
 	// printf("rgb_C = %d\n", param.rgb_C);
@@ -679,13 +874,13 @@ int main1(int ac, char **av)
 	// 	exit(1);
 	// }
 
-	display(&param);
+	display(&param , &data);
 return 0;
 }
 
 int main(int av, char **ac)
 {
 	main1(av, ac);
-	system("leaks CUB3D");
+	// system("leaks CUB3D");
 	return(0);
 }

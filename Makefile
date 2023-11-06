@@ -6,14 +6,14 @@
 #    By: eboulhou <eboulhou@student.42.fr>          +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2023/08/14 15:54:50 by rarraji           #+#    #+#              #
-#    Updated: 2023/11/05 11:50:09 by eboulhou         ###   ########.fr        #
+#    Updated: 2023/11/06 18:17:01 by eboulhou         ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
 NAME	= CUB3D
 	
 CC		= cc
-FSAN  	= #-g -fsanitize=address
+FSAN  	= -g -fsanitize=address
 FLAGS	= $(FSAN) -Wall -Wextra -Werror 
 RM		= rm -rf
 P1		= mehdiCub3d.c

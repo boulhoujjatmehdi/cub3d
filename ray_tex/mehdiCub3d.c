@@ -6,7 +6,7 @@
 /*   By: eboulhou <eboulhou@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/10/24 18:23:06 by eboulhou          #+#    #+#             */
-/*   Updated: 2023/11/06 15:14:17 by eboulhou         ###   ########.fr       */
+/*   Updated: 2023/11/06 21:04:04 by eboulhou         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -499,18 +499,9 @@ void	initialize_data(t_data *data, t_param *params)
 	data->fov = 60 * (M_PI / 180);
 	data->win_w = 1600;
 	data->win_h = 800;
-	data->txt_e = mlx_load_png(params->EA);
-	data->txt_w = mlx_load_png(params->WE);
-	data->txt_n = mlx_load_png(params->NO);
-	data->txt_s = mlx_load_png(params->SO);
-	free(params->EA);
-	free(params->WE);
-	free(params->NO);
-	free(params->SO);
+
 	if (!data->txt_e || !data->txt_w || !data->txt_n || !data->txt_s)
 		free_data(data, 5);
-	data->floor_color = params->rgb_F;
-	data->ceiling_color = params->rgb_C;
 	data->width = (params->long_line - 2) * data->sq_dim;
 	data->height = (params->height_map - 1) * data->sq_dim;
 	data->num_rays = data->win_w;
@@ -519,27 +510,26 @@ void	initialize_data(t_data *data, t_param *params)
 	
 }
 
-int	display(t_param *params)
+int	display(t_param *params, t_data *data)
 {
 	(void)params;
-	t_data	data;
 
-	ft_bzero(&data, sizeof(t_data));
-	initialize_data(&data, params);
-	vue_angle(&data);
-	data.mlx_in = mlx_init(data.win_w, data.win_h, "cub3D", 0);
-	if (!data.mlx_in)
-		free_data(&data, 1);
-	data.mlx_im = mlx_new_image(data.mlx_in, data.win_w, data.win_h);
-	if (!data.mlx_im)
-		free_data(&data, 2);
-	if(mlx_image_to_window(data.mlx_in, data.mlx_im, 0, 0) == -1)
-		free_data(&data, 3);
-	if(!mlx_loop_hook(data.mlx_in, draw, &data))
-		free_data(&data, 4);
-	mlx_loop(data.mlx_in);
+	// ft_bzero(data, sizeof(t_data));
+	initialize_data(data, params);
+	vue_angle(data);
+	data->mlx_in = mlx_init(data->win_w, data->win_h, "cub3D", 0);
+	if (!data->mlx_in)
+		free_data(data, 1);
+	data->mlx_im = mlx_new_image(data->mlx_in, data->win_w, data->win_h);
+	if (!data->mlx_im)
+		free_data(data, 2);
+	if(mlx_image_to_window(data->mlx_in, data->mlx_im, 0, 0) == -1)
+		free_data(data, 3);
+	if(!mlx_loop_hook(data->mlx_in, draw, data))
+		free_data(data, 4);
+	mlx_loop(data->mlx_in);
 
-	free_data(&data, 0);
+	free_data(data, 0);
 
 	return (0);
 }

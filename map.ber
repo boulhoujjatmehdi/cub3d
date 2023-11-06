@@ -1,17 +1,12 @@
+C 252,0,255
 
+F 166,200,6
 
-C 77,67,6
-F 10,200,1
-
-
-
-
-       SO     ./pics/TAK.png
-       NO     ./pics/TOM.png
-       WE     ./pics/TAK.png
-
-
-       EA     ./pics/TOM.png
- 1
-1E1
- 1
+       SO      ./pics/eagle.png
+       NO     ./pics/redbrick.png
+       WE     ./pics/greystone.png
+       EA   ./pics/bluestone.png
+	   
+111111
+1000S1
+111111

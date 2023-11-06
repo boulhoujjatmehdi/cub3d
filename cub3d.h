@@ -254,7 +254,7 @@ int ft_search_player(t_param *vars);
 int	ft_valid_path(int *i, int y_player, int x_player,t_param *vars);
 
 
-int display(t_param *vars);
+int display(t_param *vars, t_data *data);
 void    free_all_map(char **vars);
 int ft_cnt(char **str);
 
