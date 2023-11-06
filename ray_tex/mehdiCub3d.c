@@ -6,12 +6,28 @@
 /*   By: eboulhou <eboulhou@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/10/24 18:23:06 by eboulhou          #+#    #+#             */
-/*   Updated: 2023/11/06 12:33:18 by eboulhou         ###   ########.fr       */
+/*   Updated: 2023/11/06 15:14:17 by eboulhou         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 // #include "mehdiCub3d.h"
 #include "../cub3d.h"
+
+//function to free data.mehdiCub3d
+void free_mat(char **mat)
+{
+	int	i;
+
+	i = 0;
+	if (mat == NULL)
+		return ;
+	while (mat[i])
+	{
+		free(mat[i]);
+		i++;
+	}
+	// free(mat);
+}
 
 void	free_data(t_data *data, int exit_code)
 {
@@ -478,7 +494,7 @@ void	initialize_data(t_data *data, t_param *params)
 	data->mat = params->map_mehdi;
 	data->sq_dim = 100;
 	data->p_speed = 4;
-	data->p_rad = data->p_speed + 1;
+	data->p_rad = data->p_speed * 2;
 	data->rotation_angle = 1;
 	data->fov = 60 * (M_PI / 180);
 	data->win_w = 1600;
@@ -487,6 +503,10 @@ void	initialize_data(t_data *data, t_param *params)
 	data->txt_w = mlx_load_png(params->WE);
 	data->txt_n = mlx_load_png(params->NO);
 	data->txt_s = mlx_load_png(params->SO);
+	free(params->EA);
+	free(params->WE);
+	free(params->NO);
+	free(params->SO);
 	if (!data->txt_e || !data->txt_w || !data->txt_n || !data->txt_s)
 		free_data(data, 5);
 	data->floor_color = params->rgb_F;
@@ -501,6 +521,7 @@ void	initialize_data(t_data *data, t_param *params)
 
 int	display(t_param *params)
 {
+	(void)params;
 	t_data	data;
 
 	ft_bzero(&data, sizeof(t_data));
@@ -517,6 +538,8 @@ int	display(t_param *params)
 	if(!mlx_loop_hook(data.mlx_in, draw, &data))
 		free_data(&data, 4);
 	mlx_loop(data.mlx_in);
+
 	free_data(&data, 0);
+
 	return (0);
 }

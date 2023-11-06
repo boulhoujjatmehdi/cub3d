@@ -87,11 +87,14 @@ int	check_nl(char *s)
 	return (i);
 }
 
-void	remplir_var(char *line, t_param *var)
+int	remplir_var(char *line, t_param *var)
 {
 	char	**split;
 
 	split = ft_split(line, ' ');
+	printf("--->%d\n", ft_cnt(split));
+	if(ft_cnt(split) != 2)
+		return(1);
 	if (line[0] == 'W')
 		var->WE = ft_substr(split[1], 0, check_nl(split[1]));
 	else if (line[0] == 'S')
@@ -106,6 +109,7 @@ void	remplir_var(char *line, t_param *var)
 		var->C = ft_substr(line, 0, ft_strlen(line));
 	// if(line[0] != 'C' && line[0] != 'F')
 		free_all_map(split);
+	return(0);	
 }
 int	check_line(char *s1, char *s2)
 {
@@ -139,7 +143,8 @@ int	check_par(t_param *var)
 			if (ft_strncmp(var->map_trim[i], tab[j], len) == 0)
 			{
 				cnt++;
-				remplir_var(var->map_trim[i], var);
+				if(remplir_var(var->map_trim[i], var) == 1)
+					return(1);
 				break ;
 			}
 		}
@@ -245,6 +250,8 @@ int	check_string_is_digit(char *str)
 	int	i;
 
 	i = 0;
+	if (str[0] == '\n')
+		return (1);
 	while (str[i] && str[i] != '\n')
 	{
 		if (ft_isdigit(str[i]) == 0)
@@ -278,7 +285,11 @@ int	ft_check_is_digit(char *color)
 
 	i = 0;
 	check1 = ft_split(color, ' ');
+	// if(ft_cnt(check1) != 1)
+	// 	return (1);
 	check = ft_split(check1[1], ',');
+	// if(ft_cnt(check) != 1)
+	// 	return (1);
 	while (check[i])
 		i++;
 	// printf("this is i : %d\n", i);
@@ -287,7 +298,7 @@ int	ft_check_is_digit(char *color)
 	i = 0;
 	while (check[i])
 	{
-		// printf("--->%s\n", check[i]);
+		printf("--->'%s'\n", check[i]);
 		if (check_string_is_digit(check[i]))
 			return (1);
 		i++;
@@ -360,13 +371,41 @@ int	chec_verg(char *str)
 }
 
 
+int ft_cnt(char **str)
+{
+	int i = 0;
+	while(str[i])
+		i++;
+	return(i);
+}
+
+
+
+
+int ft_check_lenght(char *s1, char *s2)
+{
+	char **check1;
+	char **check2;
+
+	check1 = ft_split(s1, ',');
+	check2 = ft_split(s2, ',');
+	// printf("%d\n", ft_cnt(check1));
+	// printf("%d\n", ft_cnt(check2));
+	if (ft_cnt(check1) != 3 || ft_cnt(check2) != 3)
+		return (1);
+	return (0);	
+}
+
 
 int	check_color(t_param *vars)
 {
+	// if(ft_check_lenght(vars->C, vars->F,))
+	// 	return(1);
 	if (chec_verg(vars->C) == 1 || chec_verg(vars->F) == 1)
 		return (1);
-	// if (vars->C[ft_strlen(vars->C)] == ',' || !ft_isdigit(vars->C[ft_strlen(vars->C) - 2]) || vars->F[ft_strlen(vars->F)] == ',' || !ft_isdigit(vars->F[ft_strlen(vars->F) - 2]))
-	// 	return (1);
+	if (!ft_isdigit(vars->C[ft_strlen(vars->C) - 2]) || !ft_isdigit(vars->F[ft_strlen(vars->F) - 2]))
+		return (1);
+
 	if (ft_isdigit(vars->C[2]) == 0)
 	{
 		return (1);
@@ -640,7 +679,7 @@ int main1(int ac, char **av)
 	// 	exit(1);
 	// }
 
-	// display(&param);
+	display(&param);
 return 0;
 }
 

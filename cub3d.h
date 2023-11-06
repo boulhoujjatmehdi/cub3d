@@ -243,7 +243,7 @@ void draw_3d(int dst, int x , t_vars *param);
 // void ft_draw_pix(t_data	img, t_vars *param, int c);
 // void	my_mlx_pixel_put(t_data *data, int x, int y, int color);
 
-void remplir_var(char *line ,t_param *var);
+int remplir_var(char *line ,t_param *var);
 int	ft_strlen1(char *s);
 char	*ft_strjoin1(char *s1, char *s2);
 int	ft_strchr1(char *s, char c);
@@ -256,6 +256,7 @@ int	ft_valid_path(int *i, int y_player, int x_player,t_param *vars);
 
 int display(t_param *vars);
 void    free_all_map(char **vars);
+int ft_cnt(char **str);
 
 
 #endif
