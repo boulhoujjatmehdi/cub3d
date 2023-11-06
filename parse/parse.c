@@ -598,6 +598,7 @@ void printf_map(t_param *vars)
 }
 
 ////////////////////////////////////////////////////////////////////////////////
+
 int compare(char *s1, int *check)
 {
 	int tmp;
@@ -660,8 +661,6 @@ int	myatoi(const char *str)
 	neg = 1;
 	// if(!str)
 	// 	return (-1);//todo check for null string
-	if ((str[i] == '-' || str[i] == '+') && ++i)
-		return (-1);
 	if (!ft_isdigit(str[i]))
 		return (-1);
 	while (ft_isdigit(str[i]))
@@ -681,15 +680,22 @@ int set_color(char *str, uint32_t *store_color)
 	char **tmp;
 
 	tmp = ft_split(str, ',');
-		if(mat_lenght(tmp) == 3)
+	if(mat_lenght(tmp) == 3)
+	{
+		if(myatoi(tmp[0]) == -1 || myatoi(tmp[1]) == -1 || myatoi(tmp[2]) == -1)
 		{
-			if(myatoi(tmp[0]) == -1 || myatoi(tmp[1]) == -1 || myatoi(tmp[2]) == -1)
-				return (1);
-			*store_color = create_rgb(myatoi(tmp[0]), myatoi(tmp[1]), myatoi(tmp[2]));
-		}
-		else 
+			free_matrice(tmp);
 			return (1);
-	// puts("color");
+		}
+		*store_color = create_rgb(myatoi(tmp[0]), myatoi(tmp[1]), myatoi(tmp[2]));
+	}
+	else
+	{
+		free_matrice(tmp);
+		return (1);	
+	}
+
+		free_matrice(tmp);
 	return (0);
 }
 
@@ -724,7 +730,7 @@ int  enter_data(char **mat, t_data *data)
 	return (0);
 }
 
-int check_color_textures(t_param *param , t_data *data)
+int set_color_textures(t_param *param , t_data *data)
 {
 	int i;
 	char **spl;
@@ -743,6 +749,7 @@ int check_color_textures(t_param *param , t_data *data)
 		{
 			if(check != 63)
 				err = 1;
+			free_matrice(spl);
 			break ;
 		}
 		if(spl && spl[0] && spl[0][0] != '\0')
@@ -751,6 +758,7 @@ int check_color_textures(t_param *param , t_data *data)
 			if(tmp == 1 && mat_lenght(spl) != 2)
 			{
 				err = 2;
+				free_matrice(spl);
 				break ;
 			}
 			else if(tmp == 1) 
@@ -758,6 +766,7 @@ int check_color_textures(t_param *param , t_data *data)
 				if(enter_data(spl , data))
 				{
 					err = 4;
+					free_matrice(spl);
 					break ;
 				}
 			}
@@ -771,14 +780,29 @@ int check_color_textures(t_param *param , t_data *data)
 	return err;
 }
 
+void free_tdata(t_data *data)
+{
+	if(data->txt_n)
+		mlx_delete_texture(data->txt_n);
+	if(data->txt_e)
+		mlx_delete_texture(data->txt_e);
+	if(data->txt_w)
+		mlx_delete_texture(data->txt_w);
+	if(data->txt_s)
+		mlx_delete_texture(data->txt_s);
+}
+
 void mehdi_parse(t_param *param, t_data *data)
 {
 	int err;
 
-	err = check_color_textures(param, data);
+	err = set_color_textures(param, data);
 	if(err)
 	{
 		printf("Error (%d)\n", err);
+		free_tdata(data);
+		ft_bzero(data, sizeof(t_data));
+		system("leaks CUB3D");
 		exit(1);
 	}
 	// else
@@ -802,7 +826,8 @@ int main1(int ac, char **av)
 	c = read_file(&param, av[1]);
 	
 	
-	mehdi_parse(&param, &data);
+	mehdi_parse(&param, &data); //todo: mehdi
+
 	if (ft_cnt_param(&param) != 6 || check_par(&param) != 6 || check_color(&param))
 	{
 		free_all_map(param.map_trim);
@@ -874,7 +899,7 @@ int main1(int ac, char **av)
 	// 	exit(1);
 	// }
 
-	display(&param , &data);
+	display(&param , &data); //todo: mehdi
 return 0;
 }
 
