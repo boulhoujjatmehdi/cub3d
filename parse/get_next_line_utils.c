@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   get_next_line_utils.c                              :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: eboulhou <eboulhou@student.42.fr>          +#+  +:+       +#+        */
+/*   By: rarraji <rarraji@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/11/01 12:48:55 by rarraji           #+#    #+#             */
-/*   Updated: 2023/11/04 17:12:58 by eboulhou         ###   ########.fr       */
+/*   Updated: 2023/11/07 19:14:12 by rarraji          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -40,8 +40,8 @@ char	*ft_strjoin1(char *s1, char *s2)
 		return (NULL);
 	while (s1 && s1[i] != '\0')
 	{
-			s[i] = s1[i];
-			i++;
+		s[i] = s1[i];
+		i++;
 	}
 	while (s2[j] != '\0')
 	{

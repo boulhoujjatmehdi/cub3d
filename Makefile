@@ -3,10 +3,10 @@
 #                                                         :::      ::::::::    #
 #    Makefile                                           :+:      :+:    :+:    #
 #                                                     +:+ +:+         +:+      #
-#    By: eboulhou <eboulhou@student.42.fr>          +#+  +:+       +#+         #
+#    By: rarraji <rarraji@student.42.fr>            +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2023/08/14 15:54:50 by rarraji           #+#    #+#              #
-#    Updated: 2023/11/07 14:31:11 by eboulhou         ###   ########.fr        #
+#    Updated: 2023/11/07 18:56:04 by rarraji          ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
@@ -18,7 +18,7 @@ FLAGS	= $(FSAN) -Wall -Wextra -Werror
 RM		= rm -rf
 P1		= mehdiCub3d.c
 RAY	= $(addprefix ray_tex/, $(P1))
-P2		= parse.c get_next_line.c get_next_line_utils.c
+P2		= parse.c parse1.c parse2.c parse3.c parse4.c parse5.c parse6.c parse7.c get_next_line.c get_next_line_utils.c
 PAR     = $(addprefix parse/, $(P2))
 SRC		= 	$(RAY) $(PAR)
 

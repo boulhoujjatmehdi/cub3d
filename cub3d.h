@@ -24,33 +24,29 @@
 # include <math.h>
 # include "./libft/libft.h"
 # include "MLX42/Include/MLX42.h"
-
-
 #include"stdio.h"
 
 typedef struct s_param
 {
-		char **tab;
-		char **map_trim;
-		char **map;
-		char **last_map;
-		char **map_mehdi;
-		int rgb_F;
-		int rgb_C;
-		char *NO;
-		char *SO;
-		char *WE;
-		char *EA;
-		char *F;
-		char *C;
-		int		first_line;
-		int		last_line;
-		int		x_player;
-		int		y_player;
-		int 	first_nl;
-		int		height_map;
-		// char *tab[7];
-		size_t long_line;
+	char	**map_trim;
+	char	**map;
+	char	**last_map;
+	char	**map_mehdi;
+	int		rgb_F;
+	int		rgb_C;
+	char	*NO;
+	char	*SO;
+	char	*WE;
+	char	*EA;
+	char	*F;
+	char	*C;
+	int		first_line;
+	int		last_line;
+	int		x_player;
+	int		y_player;
+	int		first_nl;
+	int		height_map;
+	size_t	long_line;
 }		t_param;
 
 typedef struct s_image
@@ -205,11 +201,7 @@ typedef struct s_draw
 	int		color;
 }t_draw;
 
-int		ft_printf(const char *str, ...);
-int		ft_putchar(int c);
-int		ft_putnbr(int n);
-int		ft_putstr(char *s);
-char	*get_next_line(int fd);
+
 // int		ft_strlen(char *s);
 // char	*ft_strjoin(char *s1, char *s2);
 char	*read_line(int fd, char *str);
@@ -253,20 +245,41 @@ void draw_3d(int dst, int x , t_vars *param);
 // void ft_draw_pix(t_data	img, t_vars *param, int c);
 // void	my_mlx_pixel_put(t_data *data, int x, int y, int color);
 
-int remplir_var(char *line ,t_param *var);
-int	ft_strlen1(char *s);
+//|------------------------PARCING---------------------------------|
+
+char	*get_next_line(int fd);
+int		ft_strlen1(char *s);
 char	*ft_strjoin1(char *s1, char *s2);
-int	ft_strchr1(char *s, char c);
+int		ft_strchr1(char *s, char c);
 char	*ft_substr1(char *s, int start, int len);
-int	check_first_last_line(t_param *vars);
-int check_jnob(t_param *vars);
-int ft_search_player(t_param *vars);
-int	ft_valid_path(int *i, int y_player, int x_player,t_param *vars);
-
-
-int display(t_param *vars, t_data *data);
-void    free_all_map(char **vars);
-int ft_cnt(char **str);
-
-
+int		display(t_param *vars, t_data *data);
+int		space_exist(char **map, int x, int y);
+int		ft_check_space(t_param *vars);
+void	check_long_line(t_param *vars);
+int		ft_search_player_2(t_param *vars, int y, int i, int cnt);
+int		ft_search_player(t_param *vars);
+int		ft_cnt_param(t_param *var);
+int		ft_cnt_line(char *av1);
+char	**read_file(t_param *var, char *av1);
+int		ft_strlen2(char *s);
+int		chec_verg(char *str);
+int		ft_cnt(char **str);
+int		check_first_last_line(t_param *vars);
+int		check_jnob(t_param *vars);
+void	ft_change(t_param *vars);
+void	map_mehdi(t_param *vars);
+int		create_rgb(int r, int g, int b);
+void	exist_file(char *av);
+int		check_av(char *av);
+void	free_all_map(char **vars);
+int		compare(char *s1, int *check);
+void	free_matrice(char **matrice);
+int		mat_lenght(char **mat);
+int		myatoi(const char *str);
+int		cnt_comma(char *str);
+int		set_color(char *str, uint32_t *store_color);
+int		set_texture(char *str, mlx_texture_t **store_texture);
+int		enter_data(char **mat, t_data *data);
+int		my_error(int *err, int code, char *str, char **spl);
+int		check_entries(t_check *c);
 #endif
