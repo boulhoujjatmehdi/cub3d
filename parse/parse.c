@@ -40,7 +40,16 @@ char	**read_file(t_param *var, char *av1)
 	}
 	var->map[j] = 0;
 	var->map_trim[j] = 0;
+	if(var->map[0] == NULL)
+	{
+		close(fd);
+		printf("Error\n");
+		return (NULL);
+	}
+	close(fd);
+	// printf("'%s'\n", var->map[0]);
 	return (var->map);
+
 }
 
 // void remplir_var(char *line, t_param *var)
@@ -122,35 +131,34 @@ int	check_line(char *s1, char *s2)
 		len = ft_strlen2(s2);
 	return (len);			
 }
-int	check_par(t_param *var)
-{
-	int	i;
-	int	j;
-	int	cnt;
-	int	len;
-	char	*tab[7] = {"NO", "EA", "SO", "WE", "F", "C"};
+// int	check_par(t_param *var)
+// {
+// 	int	i;
+// 	int	j;
+// 	int	cnt;
+// 	int	len;
 
-	i = -1;
-	cnt = 0;
-	while (var->map_trim[++i])
-	{
-		if (var->map_trim[i][0] == '\n')
-			continue ;
-		j = -1;
-		while (tab[++j])
-		{
-			len = check_line(tab[j], var->map_trim[i]);
-			if (ft_strncmp(var->map_trim[i], tab[j], len) == 0)
-			{
-				cnt++;
-				if(remplir_var(var->map_trim[i], var) == 1)
-					return(1);
-				break ;
-			}
-		}
-	}
-	return (cnt);	
-}
+// 	i = -1;
+// 	cnt = 0;
+// 	while (var->map_trim[++i])
+// 	{
+// 		if (var->map_trim[i][0] == '\n')
+// 			continue ;
+// 		j = -1;
+// 		while (tab[++j])
+// 		{
+// 			len = check_line(tab[j], var->map_trim[i]);
+// 			if (ft_strncmp(var->map_trim[i], tab[j], len) == 0)
+// 			{
+// 				cnt++;
+// 				if(remplir_var(var->map_trim[i], var) == 1)
+// 					return(1);
+// 				break ;
+// 			}
+// 		}
+// 	}
+// 	return (cnt);	
+// }
 
 void	check_long_line(t_param *vars)
 {
@@ -193,6 +201,7 @@ int	ft_search_player_2(t_param *vars, int y)
 		y++;
 		i++;
 	}
+	// printf("i = %d\n", i);
 	vars->last_map[i] = 0;
 	vars->last_line = i - 1;
 	check_long_line(vars);
@@ -206,8 +215,9 @@ int	ft_search_player(t_param *vars)
 
 	cnt = 0;
 	y = vars->first_line;
-	vars->last_map = (char **)malloc(sizeof(char *) * \
-		(vars->last_line - vars->first_line + 2));
+	vars->last_map = (char **)ft_calloc(sizeof(char *),(vars->last_line - vars->first_line + 2));
+	//print the space allocated for last map
+	// printf("last_map = %d\n",(vars->last_line - vars->first_line + 2));
 	cnt = ft_search_player_2(vars, y);
 	return (cnt);
 }
@@ -225,24 +235,25 @@ int	ft_cnt_param(t_param *var)
 	while (var->map_trim[++i])
 	{
 		if (ft_strchr("WSNEFC", var->map_trim[i][0]) != NULL)
-			cnt++;
-		else if (var->map_trim[i][0] == '1')
+			continue;
+		if (var->map_trim[i][0] == '1')
 		{
 			if (tmp == 0)
 			{
 				var->first_line = i;
 				tmp = 1;
 			}
-			if (cnt < 6)
-				return (1);
 			var->last_line = i;
 		}
 		else if (var->map_trim[i][0] != '\n' && var->map_trim[i][0] != '1')
+		{
+			printf("var->map_trim[i][0] = %c\n", var->map_trim[i][0]);
 			return (1);
+		}
 		else
 			continue ;
 	}
-	return (cnt);
+	return (0);
 }
 
 int	check_string_is_digit(char *str)
@@ -492,6 +503,7 @@ void	map_mehdi(t_param *vars)
 	int	dec;
 
 	i = 0;
+	puts("map_mehdi");
 	while (vars->last_map[i])
 		i++;
 	vars->map_mehdi = malloc(sizeof(char *) * (i + 1));
@@ -578,8 +590,9 @@ void	free_all_map(char **vars)
 	i = 0;
 	if (!vars)
 		return ;
-	while (vars[i])
+	while (vars && vars[i])
 	{
+		// printf("-->%p\n", vars[i]);	
 		free(vars[i]);
 		vars[i] = NULL;
 		i++;
@@ -675,12 +688,32 @@ int	myatoi(const char *str)
 	return (ret);
 }
 
+int cnt_comma(char *str)
+{
+	int i = 0;
+	int cnt = 0;
+	while(str[i])
+	{
+		if(str[i] == ',')
+			cnt++;
+		i++;
+	}
+	// printf("cnt = %d\n", cnt);
+	if(cnt == 2)
+		return (1);
+	return (0);
+}
+
 int set_color(char *str, uint32_t *store_color)
 {
 	char **tmp;
 
+	// if()
+	// {
+	// 	return (1);
+	// }
 	tmp = ft_split(str, ',');
-	if(mat_lenght(tmp) == 3)
+	if(mat_lenght(tmp) == 3 && cnt_comma(str))
 	{
 		if(myatoi(tmp[0]) == -1 || myatoi(tmp[1]) == -1 || myatoi(tmp[2]) == -1)
 		{
@@ -730,6 +763,8 @@ int  enter_data(char **mat, t_data *data)
 	return (0);
 }
 
+
+
 int set_color_textures(t_param *param , t_data *data)
 {
 	int i;
@@ -741,14 +776,18 @@ int set_color_textures(t_param *param , t_data *data)
 	i = 0;
 	err = 0;
 	check = 0;
+	char *str;
+
 	while(param->map[i])
 	{
-		param->map[i][ft_strlen(param->map[i]) - 1] = '\0';
-		spl = ft_split(param->map[i], ' ');
+		str = ft_strdup(param->map[i]);
+		str[ft_strlen(str) - 1] = '\0';
+		spl = ft_split(str, ' ');
 		if(spl && spl[0] && spl[0][0] == '1')
 		{
 			if(check != 63)
 				err = 1;
+			free(str);
 			free_matrice(spl);
 			break ;
 		}
@@ -758,6 +797,8 @@ int set_color_textures(t_param *param , t_data *data)
 			if(tmp == 1 && mat_lenght(spl) != 2)
 			{
 				err = 2;
+				free(str);
+
 				free_matrice(spl);
 				break ;
 			}
@@ -766,14 +807,18 @@ int set_color_textures(t_param *param , t_data *data)
 				if(enter_data(spl , data))
 				{
 					err = 4;
+					free(str);
+
 					free_matrice(spl);
 					break ;
 				}
 			}
-
 			if(tmp == 2)
 				err = 3;
 		}
+		// printf("str = %s\n", str);
+		free(str);
+
 		free_matrice(spl);
 		i++;
 	}
@@ -792,23 +837,22 @@ void free_tdata(t_data *data)
 		mlx_delete_texture(data->txt_s);
 }
 
-void mehdi_parse(t_param *param, t_data *data)
+int  mehdi_parse(t_param *param, t_data *data)
 {
 	int err;
 
 	err = set_color_textures(param, data);
 	if(err)
 	{
-		printf("Error (%d)\n", err);
+		puts ("*****************************");
+		printf("*Error (%d)                 *\n", err);
+		puts ("*****************************");
 		free_tdata(data);
 		ft_bzero(data, sizeof(t_data));
-		system("leaks CUB3D");
-		exit(1);
+		// system("leaks CUB3D");
+		return(1);
 	}
-	// else
-
-
-	(void)data;
+	return 0;
 }
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 int main1(int ac, char **av)
@@ -816,42 +860,62 @@ int main1(int ac, char **av)
 	t_data data;
 
 
-	char **c;
 	t_param param;
 	(void)ac;
 	ft_bzero(&param, sizeof(t_param));
 	ft_bzero(&data, sizeof(t_data));
 	if(check_av(av[1]))
 		return (0);
-	c = read_file(&param, av[1]);
-	
-	
-	mehdi_parse(&param, &data); //todo: mehdi
-
-	if (ft_cnt_param(&param) != 6 || check_par(&param) != 6 || check_color(&param))
+	if(read_file(&param, av[1]) == NULL)
 	{
-		free_all_map(param.map_trim);
 		free_all_map(param.map);
-		printf("EROOR 88 !!\n");
-		free(param.C);
-		free(param.F);
-		free(param.EA);
-		free(param.NO);
-		free(param.SO);
-		free(param.WE);
-		return (0);
+		free_all_map(param.map_trim);
+		return (1);
 	}
+	
+	if(mehdi_parse(&param, &data))
+	{
+		free_matrice(param.map);
+		free_matrice(param.map_trim);
+		return (1);
+	}
+
+
+	// if (ft_cnt_param(&param) != 6 || check_par(&param) != 6 || check_color(&param) )
+	// {
+	// 	free_all_map(param.map_trim);
+	// 	free_all_map(param.map);
+	// 	printf("EROOR 88 !!\n");
+	// 	// free(param.C);
+	// 	// free(param.F);
+	// 	// free(param.EA);
+	// 	// free(param.NO);
+	// 	// free(param.SO);
+	// 	// free(param.WE);
+	// 	return (0);
+	// }
+	ft_cnt_param(&param);
+
+
 	if (check_first_last_line(&param) || check_jnob(&param) || ft_search_player(&param) != 1 || ft_check_space(&param))
 	{
-		free_all_map(param.map);
-		free_all_map(param.map_trim);
-		free_all_map(param.last_map);
-		free(param.C);
-		free(param.F);
-		free(param.EA);
-		free(param.NO);
-		free(param.SO);
-		free(param.WE);
+		// printf("-->%p\n", param.last_map);
+		free_matrice(param.map_trim);
+		free_matrice(param.map);
+		// free(param.C);
+		// free(param.F);
+		// free(param.EA);
+		// free(param.NO);
+		// free(param.SO);
+		// free(param.WE);
+		//print the pointer of the last ma
+		// return 1;
+		free_matrice(param.last_map);
+		free_tdata(&data);
+		// system("leaks CUB3D");
+		// ft_bzero(&data, sizeof(t_data));
+		// ft_bzero(&param, sizeof(t_param));
+		// puts("---------------------------------");
 		printf("EROOR 99 !!\n");
 		// system("leaks CUB3D");
 		// free;
@@ -865,10 +929,11 @@ int main1(int ac, char **av)
 	// }
 	// system("leaks -p");
 	// printf("-------------------------------------------\n");
-	search_rgb(param.F, &param.rgb_F);
+	// search_rgb(param.F, &param.rgb_F);
 	// printf("rgb_F = %d\n", param.rgb_F);
+	puts("here");
 	map_mehdi(&param);
-	search_rgb(param.C, &param.rgb_C);
+	// search_rgb(param.C, &param.rgb_C);
 	// printf("rgb_C = %d\n", param.rgb_C);
 	// ft_bzero(&param, sizeof(param));
 	// system("leaks CUB3D");
@@ -898,7 +963,7 @@ int main1(int ac, char **av)
 	// 	system("leaks CUB3D");
 	// 	exit(1);
 	// }
-
+	puts("here");
 	display(&param , &data); //todo: mehdi
 return 0;
 }
@@ -906,6 +971,6 @@ return 0;
 int main(int av, char **ac)
 {
 	main1(av, ac);
-	// system("leaks CUB3D");
+	system("leaks CUB3D");
 	return(0);
 }
