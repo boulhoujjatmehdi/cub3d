@@ -117,6 +117,16 @@ enum e_direction
 
 char	*get_next_line(int fd);
 
+typedef struct s_check
+{
+	int i;
+	char **spl;
+	char *str;
+	int check;
+	int err;
+	int tmp;
+}t_check;
+
 typedef struct s_wall
 {
 	int		horz_found_wall;

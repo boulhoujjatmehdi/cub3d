@@ -26,7 +26,7 @@ char	**read_file(t_param *var, char *av1)
 	int	i;
 	int	j;
 
-	j = 0;
+	j = -1;
 	i = 0;
 	i = ft_cnt_line(av1);
 	fd = open(av1, O_RDONLY);
@@ -34,9 +34,8 @@ char	**read_file(t_param *var, char *av1)
 	var->map_trim = (char **)malloc(sizeof(char *) * (i + 1));
 	while (i--)
 	{
-		var->map[j] = get_next_line(fd);
+		var->map[++j] = get_next_line(fd);
 		var->map_trim[j] = ft_strtrim(var->map[j], " ");
-		j++;
 	}
 	var->map[j] = 0;
 	var->map_trim[j] = 0;
@@ -47,9 +46,7 @@ char	**read_file(t_param *var, char *av1)
 		return (NULL);
 	}
 	close(fd);
-	// printf("'%s'\n", var->map[0]);
 	return (var->map);
-
 }
 
 // void remplir_var(char *line, t_param *var)
@@ -88,49 +85,44 @@ int	check_nl(char *s)
 		i = ft_strlen2(s)-1;
 	else
 		i = ft_strlen(s);
-
-		// printf("s == [%s]\n", s);
-
-
-		// ft_strtrim()
 	return (i);
 }
 
-int	remplir_var(char *line, t_param *var)
-{
-	char	**split;
+// int	remplir_var(char *line, t_param *var)
+// {
+// 	char	**split;
 
-	split = ft_split(line, ' ');
-	// printf("--->%d\n", ft_cnt(split));
-	if(ft_cnt(split) != 2)
-		return(1);
-	if (line[0] == 'W')
-		var->WE = ft_substr(split[1], 0, check_nl(split[1]));
-	else if (line[0] == 'S')
-		var->SO = ft_substr(split[1], 0, check_nl(split[1]));
-	else if (line[0] == 'N')
-		var->NO = ft_substr(split[1], 0, check_nl(split[1]));
-	else if (line[0] == 'E')
-		var->EA = ft_substr(split[1], 0, check_nl(split[1]));
-	else if (line[0] == 'F')
-		var->F = ft_substr(line, 0, ft_strlen(line));
-	else
-		var->C = ft_substr(line, 0, ft_strlen(line));
-	// if(line[0] != 'C' && line[0] != 'F')
-		free_all_map(split);
-	return(0);	
-}
-int	check_line(char *s1, char *s2)
-{
-	int	len;
+// 	split = ft_split(line, ' ');
+// 	// printf("--->%d\n", ft_cnt(split));
+// 	if(ft_cnt(split) != 2)
+// 		return(1);
+// 	if (line[0] == 'W')
+// 		var->WE = ft_substr(split[1], 0, check_nl(split[1]));
+// 	else if (line[0] == 'S')
+// 		var->SO = ft_substr(split[1], 0, check_nl(split[1]));
+// 	else if (line[0] == 'N')
+// 		var->NO = ft_substr(split[1], 0, check_nl(split[1]));
+// 	else if (line[0] == 'E')
+// 		var->EA = ft_substr(split[1], 0, check_nl(split[1]));
+// 	else if (line[0] == 'F')
+// 		var->F = ft_substr(line, 0, ft_strlen(line));
+// 	else
+// 		var->C = ft_substr(line, 0, ft_strlen(line));
+// 	// if(line[0] != 'C' && line[0] != 'F')
+// 		free_all_map(split);
+// 	return(0);	
+// }
+// int	check_line(char *s1, char *s2)
+// {
+// 	int	len;
 
-	len = 0;
-	if (ft_strlen2(s1) > ft_strlen2(s2))
-		len = ft_strlen2(s1);
-	else
-		len = ft_strlen2(s2);
-	return (len);			
-}
+// 	len = 0;
+// 	if (ft_strlen2(s1) > ft_strlen2(s2))
+// 		len = ft_strlen2(s1);
+// 	else
+// 		len = ft_strlen2(s2);
+// 	return (len);			
+// }
 // int	check_par(t_param *var)
 // {
 // 	int	i;
@@ -174,14 +166,10 @@ void	check_long_line(t_param *vars)
 	}
 }
 
-int	ft_search_player_2(t_param *vars, int y)
+int	ft_search_player_2(t_param *vars, int y, int i, int cnt)
 {
-	int	cnt;
 	int	x;
-	int	i;
 
-	cnt = 0;
-	i = 0;
 	while (vars->map[y])
 	{
 		vars->last_map[i] = ft_substr(vars->map[y], 0, ft_strlen(vars->map[y]));
@@ -201,7 +189,6 @@ int	ft_search_player_2(t_param *vars, int y)
 		y++;
 		i++;
 	}
-	// printf("i = %d\n", i);
 	vars->last_map[i] = 0;
 	vars->last_line = i - 1;
 	check_long_line(vars);
@@ -212,13 +199,13 @@ int	ft_search_player(t_param *vars)
 {
 	int	y;
 	int	cnt;
+	int	i;
 
 	cnt = 0;
+	i = 0;
 	y = vars->first_line;
 	vars->last_map = (char **)ft_calloc(sizeof(char *),(vars->last_line - vars->first_line + 2));
-	//print the space allocated for last map
-	// printf("last_map = %d\n",(vars->last_line - vars->first_line + 2));
-	cnt = ft_search_player_2(vars, y);
+	cnt = ft_search_player_2(vars, y, i, cnt);
 	return (cnt);
 }
 
@@ -246,12 +233,7 @@ int	ft_cnt_param(t_param *var)
 			var->last_line = i;
 		}
 		else if (var->map_trim[i][0] != '\n' && var->map_trim[i][0] != '1')
-		{
-			printf("var->map_trim[i][0] = %c\n", var->map_trim[i][0]);
 			return (1);
-		}
-		else
-			continue ;
 	}
 	return (0);
 }
@@ -296,20 +278,14 @@ int	ft_check_is_digit(char *color)
 
 	i = 0;
 	check1 = ft_split(color, ' ');
-	// if(ft_cnt(check1) != 1)
-	// 	return (1);
 	check = ft_split(check1[1], ',');
-	// if(ft_cnt(check) != 1)
-	// 	return (1);
 	while (check[i])
 		i++;
-	// printf("this is i : %d\n", i);
 	if (i != 3)
 		return (1);
 	i = 0;
 	while (check[i])
 	{
-		// printf("--->'%s'\n", check[i]);
 		if (check_string_is_digit(check[i]))
 			return (1);
 		i++;
@@ -393,46 +369,42 @@ int ft_cnt(char **str)
 
 
 
-int ft_check_lenght(char *s1, char *s2)
-{
-	char **check1;
-	char **check2;
+// int ft_check_lenght(char *s1, char *s2)
+// {
+// 	char **check1;
+// 	char **check2;
 
-	check1 = ft_split(s1, ',');
-	check2 = ft_split(s2, ',');
-	// printf("%d\n", ft_cnt(check1));
-	// printf("%d\n", ft_cnt(check2));
-	if (ft_cnt(check1) != 3 || ft_cnt(check2) != 3)
-		return (1);
-	return (0);	
-}
+// 	check1 = ft_split(s1, ',');
+// 	check2 = ft_split(s2, ',');
+// 	if (ft_cnt(check1) != 3 || ft_cnt(check2) != 3)
+// 		return (1);
+// 	return (0);	
+// }
 
 
-int	check_color(t_param *vars)
-{
-	// if(ft_check_lenght(vars->C, vars->F,))
-	// 	return(1);
-	if (chec_verg(vars->C) == 1 || chec_verg(vars->F) == 1)
-		return (1);
-	if (!ft_isdigit(vars->C[ft_strlen(vars->C) - 2]) || !ft_isdigit(vars->F[ft_strlen(vars->F) - 2]))
-		return (1);
+// int	check_color(t_param *vars)
+// {
+// 	if (chec_verg(vars->C) == 1 || chec_verg(vars->F) == 1)
+// 		return (1);
+// 	if (!ft_isdigit(vars->C[ft_strlen(vars->C) - 2]) || !ft_isdigit(vars->F[ft_strlen(vars->F) - 2]))
+// 		return (1);
 
-	if (ft_isdigit(vars->C[2]) == 0)
-	{
-		return (1);
-	}
-	if (ft_isdigit(vars->F[2]) == 0)
-		return (1);
-	if (ft_strncmp(vars->C, "C" , 1) == 0)
-	{
-		if (ft_check_is_digit(vars->C))
-			return (1);
-	} //hsb wach homa 2
-	if (ft_strncmp(vars->F, "F" , 1) == 0) //hsb wach homa 2
-		if (ft_check_is_digit(vars->F))
-			return (1);
-	return (0);
-}
+// 	if (ft_isdigit(vars->C[2]) == 0)
+// 	{
+// 		return (1);
+// 	}
+// 	if (ft_isdigit(vars->F[2]) == 0)
+// 		return (1);
+// 	if (ft_strncmp(vars->C, "C" , 1) == 0)
+// 	{
+// 		if (ft_check_is_digit(vars->C))
+// 			return (1);
+// 	}
+// 	if (ft_strncmp(vars->F, "F" , 1) == 0) //hsb wach homa 2
+// 		if (ft_check_is_digit(vars->F))
+// 			return (1);
+// 	return (0);
+// }
 //--------------------------------------------------------------------------------------------------------//
 
 int	check_first_last_line(t_param *vars)
@@ -503,7 +475,7 @@ void	map_mehdi(t_param *vars)
 	int	dec;
 
 	i = 0;
-	puts("map_mehdi");
+	// puts("map_mehdi");
 	while (vars->last_map[i])
 		i++;
 	vars->map_mehdi = malloc(sizeof(char *) * (i + 1));
@@ -530,17 +502,17 @@ int	create_rgb(int r, int g, int b)
 {
 	return (r << 24 | g << 16 | b << 8 | 255);
 }
-void search_rgb(char *str, int *rgb)
-{
-	char	**s2;
-	char	*tmp;
+// void search_rgb(char *str, int *rgb)
+// {
+// 	char	**s2;
+// 	char	*tmp;
 
-	s2 = ft_split(str, ',');
-	tmp = ft_substr(s2[2], 0, ft_strlen(s2[2]) - 1);
-	*rgb = create_rgb(ft_atoi(s2[0]), ft_atoi(s2[1]), ft_atoi(tmp));
-	free(tmp);
-	free_all_map(s2);
-}
+// 	s2 = ft_split(str, ',');
+// 	tmp = ft_substr(s2[2], 0, ft_strlen(s2[2]) - 1);
+// 	*rgb = create_rgb(ft_atoi(s2[0]), ft_atoi(s2[1]), ft_atoi(tmp));
+// 	free(tmp);
+// 	free_all_map(s2);
+// }
 
 void	exist_file(char *av)
 {
@@ -562,7 +534,6 @@ int	check_av(char *av)
 	j = 0;
 	i = 0;
 	s = ".ber";
-	
 	exist_file(av);
 	while (av[i])
 		i++;
@@ -592,7 +563,6 @@ void	free_all_map(char **vars)
 		return ;
 	while (vars && vars[i])
 	{
-		// printf("-->%p\n", vars[i]);	
 		free(vars[i]);
 		vars[i] = NULL;
 		i++;
@@ -640,7 +610,6 @@ int compare(char *s1, int *check)
 	}
 	return (0);
 }
-
 
 //function free_matrice 
 void free_matrice(char **matrice)
@@ -763,66 +732,79 @@ int  enter_data(char **mat, t_data *data)
 	return (0);
 }
 
+int  my_error(int *err,int code, char *str, char **spl)
+{
+	*err = code;
+	free(str);
+	free_matrice(spl);
+	return 1;
+}
 
+int check_and_fill(char **spl, t_data *data, int *err, char *str, int check)
+{
+	int tmp;
+	if(spl && spl[0] && spl[0][0] != '\0')
+	{
+		tmp = compare(spl[0], &check);
+		printf("     tmp = %d\n", tmp);
+		printf("%d ---- \n", tmp == 1 && mat_lenght(spl) != 2);
+		if(tmp == 1 && mat_lenght(spl) != 2 && my_error(err, 2, str, spl))
+		{
+			puts("here111");
+			return (1);
+		}
+		else if(tmp == 1)
+		{
+			printf("%d \n", enter_data(spl , data));
+			if(enter_data(spl , data) && my_error(err, 4, str, spl))
+			{
+				puts("here222");
+				return (1);
+			}
+		}
+		if(tmp == 2)
+			*err = 3;
+	}
+	return 0;
+}
 
+int check_entries(t_check *c)
+{
+	if(c->spl && c->spl[0] && c->spl[0][0] == '1')
+	{
+		if(my_error(&c->err, c->err, c->str, c->spl) && c->check != 63)
+			c->err = 1;
+		return 1;
+	}
+	return 0;
+}
 int set_color_textures(t_param *param , t_data *data)
 {
-	int i;
-	char **spl;
-	int check;
-	int err;
-	int tmp;
+	t_check c;
 
-	i = 0;
-	err = 0;
-	check = 0;
-	char *str;
-
-	while(param->map[i])
+	ft_bzero(&c, sizeof(t_check));
+	while(param->map[c.i])
 	{
-		str = ft_strdup(param->map[i]);
-		str[ft_strlen(str) - 1] = '\0';
-		spl = ft_split(str, ' ');
-		if(spl && spl[0] && spl[0][0] == '1')
+		c.str = ft_strtrim(param->map[c.i++], "\n");
+		c.spl = ft_split(c.str, ' ');
+		if(check_entries(&c))
+			break;
+		if(c.spl && c.spl[0] && c.spl[0][0] != '\0')
 		{
-			if(check != 63)
-				err = 1;
-			free(str);
-			free_matrice(spl);
-			break ;
+			c.tmp = compare(c.spl[0], &c.check);
+			if(c.tmp == 1 && mat_lenght(c.spl) != 2
+				&& my_error(&c.err, 2, c.str, c.spl))
+				return (1);
+			else if(c.tmp == 1)
+				if(enter_data(c.spl , data)
+					&& my_error(&c.err, 4, c.str, c.spl))
+					return (1);
+			if(c.tmp == 2)
+				c.err = 3;
 		}
-		if(spl && spl[0] && spl[0][0] != '\0')
-		{
-			tmp = compare(spl[0], &check) ;
-			if(tmp == 1 && mat_lenght(spl) != 2)
-			{
-				err = 2;
-				free(str);
-
-				free_matrice(spl);
-				break ;
-			}
-			else if(tmp == 1) 
-			{
-				if(enter_data(spl , data))
-				{
-					err = 4;
-					free(str);
-
-					free_matrice(spl);
-					break ;
-				}
-			}
-			if(tmp == 2)
-				err = 3;
-		}
-		// printf("str = %s\n", str);
-		free(str);
-
-		free_matrice(spl);
-		i++;
+			my_error(&c.err, c.err, c.str, c.spl);
 	}
-	return err;
+	return c.err;
 }
 
 void free_tdata(t_data *data)
@@ -844,9 +826,7 @@ int  mehdi_parse(t_param *param, t_data *data)
 	err = set_color_textures(param, data);
 	if(err)
 	{
-		puts ("*****************************");
-		printf("*Error (%d)                 *\n", err);
-		puts ("*****************************");
+		ft_putstr_fd("ERROR:\n", 2);
 		free_tdata(data);
 		ft_bzero(data, sizeof(t_data));
 		// system("leaks CUB3D");
@@ -931,7 +911,7 @@ int main1(int ac, char **av)
 	// printf("-------------------------------------------\n");
 	// search_rgb(param.F, &param.rgb_F);
 	// printf("rgb_F = %d\n", param.rgb_F);
-	puts("here");
+	// puts("here");
 	map_mehdi(&param);
 	// search_rgb(param.C, &param.rgb_C);
 	// printf("rgb_C = %d\n", param.rgb_C);
@@ -963,7 +943,7 @@ int main1(int ac, char **av)
 	// 	system("leaks CUB3D");
 	// 	exit(1);
 	// }
-	puts("here");
+	// puts("here");
 	display(&param , &data); //todo: mehdi
 return 0;
 }

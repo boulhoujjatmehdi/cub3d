@@ -1,14 +1,12 @@
-C 252,1,255  
-        
-F 166,2,00000000001000000000000000000000000000000000000000033
+C 252,1,255
+F 166,200,11
 
-    SO     ./pics/eagle.png
+    SO ./pics/eagle.png 
     NO     ./pics/redbrick.png
     WE     ./pics/greystone.png
-    EA     ./pics/bluestone.png
-	
+ EA     ./pics/bluestone.png
 
 111111
-111111
+1110111
 1S001111
 111111
