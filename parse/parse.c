@@ -42,7 +42,7 @@ char	**read_file(t_param *var, char *av1)
 	if(var->map[0] == NULL)
 	{
 		close(fd);
-		ft_putstr_fd("ERROR\n", 2);
+		ft_putstr_fd("Error\n.ber file error", 2);
 		return (NULL);
 	}
 	close(fd);
@@ -520,7 +520,7 @@ void	exist_file(char *av)
 	fd = open(av, O_RDONLY);
 	if (fd == -1)
 	{
-		printf("file not exist !!!\n");
+		printf("Error\nfile not exist\n");
 		exit(1);
 	}
 }
@@ -547,7 +547,7 @@ int	check_av(char *av)
 		}
 		else
 		{
-			ft_putstr_fd("ERROR\n", 2);
+			ft_putstr_fd("Error\n", 2);
 			return (1);
 		}
 	}
@@ -799,7 +799,7 @@ int  mehdi_parse(t_param *param, t_data *data)
 	err = set_color_textures(param, data);
 	if(err)
 	{
-		ft_putstr_fd("ERROR:\n", 2);
+		ft_putstr_fd("Error\nargs/textures error\n", 2);
 		free_tdata(data);
 		ft_bzero(data, sizeof(t_data));
 		// system("leaks CUB3D");
@@ -816,7 +816,7 @@ int main1(int ac, char **av)
 	
 	if(ac != 2)
 	{
-		ft_putstr_fd("ERROR\n", 2);
+		ft_putstr_fd("Error\nargs error\n", 2);
 		return (1);
 	}
 	ft_bzero(&param, sizeof(t_param));
@@ -842,7 +842,7 @@ int main1(int ac, char **av)
 		free_matrice(param.map);
 		free_matrice(param.last_map);
 		free_tdata(&data);
-		ft_putstr_fd("ERROR\n", 2);
+		ft_putstr_fd("Error\nmap_error\n", 2);
 		return (0);
 	}
 	map_mehdi(&param);
