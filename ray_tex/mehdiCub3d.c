@@ -335,9 +335,11 @@ void	draw_wall_ray(t_draw *dr, t_data *data, t_ray *ray, mlx_texture_t *tex)
 	{
 		if (dr->i < data->win_h && dr->i > 0)
 		{
-			ray->y_offset = dr->y * ((float)tex->height
-					/ ray->wall_height);
-			ray->y_offset = abs(ray->y_offset);
+			dr->top_dist = dr->y + (dr->strip_height / 2)
+				- ((float)data->win_h / 2);
+			ray->y_offset = dr->top_dist * ((float)tex->height 
+					/ ray->wall_height); //check if we replaced the topDist with j from 0;
+			ray->y_offset = abs(ray->y_offset);//check if we need this line because it seems like we don't
 			dr->color = get_color(tex, ray->x_offset, ray->y_offset);
 			mlx_put_pixel(data->mlx_im, ray->i, dr->y, dr->color);
 		}
