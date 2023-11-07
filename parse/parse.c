@@ -42,7 +42,7 @@ char	**read_file(t_param *var, char *av1)
 	if(var->map[0] == NULL)
 	{
 		close(fd);
-		printf("Error\n");
+		ft_putstr_fd("ERROR\n", 2);
 		return (NULL);
 	}
 	close(fd);
@@ -547,7 +547,7 @@ int	check_av(char *av)
 		}
 		else
 		{
-			printf("Error CUB\n");
+			ft_putstr_fd("ERROR\n", 2);
 			return (1);
 		}
 	}
@@ -740,34 +740,6 @@ int  my_error(int *err,int code, char *str, char **spl)
 	return 1;
 }
 
-int check_and_fill(char **spl, t_data *data, int *err, char *str, int check)
-{
-	int tmp;
-	if(spl && spl[0] && spl[0][0] != '\0')
-	{
-		tmp = compare(spl[0], &check);
-		printf("     tmp = %d\n", tmp);
-		printf("%d ---- \n", tmp == 1 && mat_lenght(spl) != 2);
-		if(tmp == 1 && mat_lenght(spl) != 2 && my_error(err, 2, str, spl))
-		{
-			puts("here111");
-			return (1);
-		}
-		else if(tmp == 1)
-		{
-			printf("%d \n", enter_data(spl , data));
-			if(enter_data(spl , data) && my_error(err, 4, str, spl))
-			{
-				puts("here222");
-				return (1);
-			}
-		}
-		if(tmp == 2)
-			*err = 3;
-	}
-	return 0;
-}
-
 int check_entries(t_check *c)
 {
 	if(c->spl && c->spl[0] && c->spl[0][0] == '1')
@@ -778,6 +750,7 @@ int check_entries(t_check *c)
 	}
 	return 0;
 }
+
 int set_color_textures(t_param *param , t_data *data)
 {
 	t_check c;
@@ -834,14 +807,18 @@ int  mehdi_parse(t_param *param, t_data *data)
 	}
 	return 0;
 }
+
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 int main1(int ac, char **av)
 {
 	t_data data;
-
-
 	t_param param;
-	(void)ac;
+	
+	if(ac != 2)
+	{
+		ft_putstr_fd("ERROR\n", 2);
+		return (1);
+	}
 	ft_bzero(&param, sizeof(t_param));
 	ft_bzero(&data, sizeof(t_data));
 	if(check_av(av[1]))
@@ -852,105 +829,35 @@ int main1(int ac, char **av)
 		free_all_map(param.map_trim);
 		return (1);
 	}
-	
 	if(mehdi_parse(&param, &data))
 	{
 		free_matrice(param.map);
 		free_matrice(param.map_trim);
 		return (1);
 	}
-
-
-	// if (ft_cnt_param(&param) != 6 || check_par(&param) != 6 || check_color(&param) )
-	// {
-	// 	free_all_map(param.map_trim);
-	// 	free_all_map(param.map);
-	// 	printf("EROOR 88 !!\n");
-	// 	// free(param.C);
-	// 	// free(param.F);
-	// 	// free(param.EA);
-	// 	// free(param.NO);
-	// 	// free(param.SO);
-	// 	// free(param.WE);
-	// 	return (0);
-	// }
 	ft_cnt_param(&param);
-
-
 	if (check_first_last_line(&param) || check_jnob(&param) || ft_search_player(&param) != 1 || ft_check_space(&param))
 	{
-		// printf("-->%p\n", param.last_map);
 		free_matrice(param.map_trim);
 		free_matrice(param.map);
-		// free(param.C);
-		// free(param.F);
-		// free(param.EA);
-		// free(param.NO);
-		// free(param.SO);
-		// free(param.WE);
-		//print the pointer of the last ma
-		// return 1;
 		free_matrice(param.last_map);
 		free_tdata(&data);
-		// system("leaks CUB3D");
-		// ft_bzero(&data, sizeof(t_data));
-		// ft_bzero(&param, sizeof(t_param));
-		// puts("---------------------------------");
-		printf("EROOR 99 !!\n");
-		// system("leaks CUB3D");
-		// free;
+		ft_putstr_fd("ERROR\n", 2);
 		return (0);
 	}
-	// ft_valid_path(&i, param.y_player, param.x_player, &param);
-	// if(i != 0)
-	// {
-	// 	printf("EROOR Soliix !!\n");
-	// 	return(0);
-	// }
-	// system("leaks -p");
-	// printf("-------------------------------------------\n");
-	// search_rgb(param.F, &param.rgb_F);
-	// printf("rgb_F = %d\n", param.rgb_F);
-	// puts("here");
 	map_mehdi(&param);
-	// search_rgb(param.C, &param.rgb_C);
-	// printf("rgb_C = %d\n", param.rgb_C);
-	// ft_bzero(&param, sizeof(param));
-	// system("leaks CUB3D");
-	// exit(1);
-	// printf("rgb_C = %d\n", param.rgb_C);
-	// printf("rgb_F = %d\n", param.rgb_F);
-	// printf("%s\n", param.C);
-	// printf("%s\n", param.F);
-	// printf("(%s)\n", param.NO);
-	// printf("(%s)\n", param.EA);
-	// printf("(%s)\n", param.WE);
-	// printf("(%s)\n", param.SO);
-	// printf_map(&param);
-	// printf("long_line = %lu\n", param.long_line);
-	// printf("height_map = %d\n", param.height_map);
-
-	// printf("x = %d\n", param.x_player);
-	// printf("y = %d\n", param.y_player);
-	// printf("height_map = %d\n", param.height_map);
 	free_all_map(param.map);
 	free_all_map(param.map_trim);
 	free_all_map(param.last_map);
 	free(param.C);
 	free(param.F);
-	// {
-	// 	ft_bzero(&param, sizeof(param));  
-	// 	system("leaks CUB3D");
-	// 	exit(1);
-	// }
-	// puts("here");
-	display(&param , &data); //todo: mehdi
+	display(&param , &data);
 return 0;
 }
 
 int main(int av, char **ac)
 {
 	main1(av, ac);
-	system("leaks CUB3D");
+	// system("leaks CUB3D");
 	return(0);
 }

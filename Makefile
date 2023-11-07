@@ -6,7 +6,7 @@
 #    By: eboulhou <eboulhou@student.42.fr>          +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2023/08/14 15:54:50 by rarraji           #+#    #+#              #
-#    Updated: 2023/11/07 12:34:36 by eboulhou         ###   ########.fr        #
+#    Updated: 2023/11/07 14:31:11 by eboulhou         ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
@@ -47,7 +47,7 @@ run: all
 
 $(NAME): $(OBJ) $(LIBFT) 
 	@printf "$(YELLOW) Compiling $(NAME)... \n"
-	$(CC)  $(FLAGS) $(OBJ) $(LIBFT) $(MLX) $(GLFW)  -o $(NAME)  
+	@$(CC)  $(FLAGS) $(OBJ) $(LIBFT) $(MLX) $(GLFW)  -o $(NAME)  
 	@printf "$(GREEN) Executable ready.\n"
 
 $(LIBFT):
