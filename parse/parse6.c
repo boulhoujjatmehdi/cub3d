@@ -6,41 +6,39 @@
 /*   By: rarraji <rarraji@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/11/07 18:44:29 by rarraji           #+#    #+#             */
-/*   Updated: 2023/11/07 19:02:11 by rarraji          ###   ########.fr       */
+/*   Updated: 2023/11/08 08:23:49 by rarraji          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "../cub3d.h"
 
-int	compare(char *s1, int *check)
+int	mat_lenght(char **mat)
 {
-	int	tmp;
-	int	bol;
+	int	i;
 
-	tmp = *check;
-	bol = 1;
-	if (!ft_strncmp(s1, "C", 2) && bol++)
-		*check = *check | 1;
-	else if (!ft_strncmp(s1, "F", 2) && bol++)
-		*check = *check | 2;
-	else if (!ft_strncmp(s1, "NO", 3) && bol++)
-		*check = *check | 4;
-	else if (!ft_strncmp(s1, "EA", 3) && bol++)
-		*check = *check | 8;
-	else if (!ft_strncmp(s1, "SO", 3) && bol++)
-		*check = *check | 16;
-	else if (!ft_strncmp(s1, "WE", 3) && bol++)
-		*check = *check | 32;
-	if (bol != 1)
-	{
-		if (tmp == *check)
-			return (2);
+	i = 0;
+	while (mat[i])
+		i++;
+	return (i);
+}
+
+int	enter_data(char **mat, t_data *data)
+{
+	if (mat[0][0] == 'C' && set_color(mat[1], &data->ceiling_color))
 		return (1);
-	}
+	else if (mat[0][0] == 'F' && set_color(mat[1], &data->floor_color))
+		return (1);
+	else if (mat[0][0] == 'N' && set_texture(mat[1], &data->txt_n))
+		return (1);
+	else if (mat[0][0] == 'E' && set_texture(mat[1], &data->txt_e))
+		return (1);
+	else if (mat[0][0] == 'W' && set_texture(mat[1], &data->txt_w))
+		return (1);
+	else if (mat[0][0] == 'S' && set_texture(mat[1], &data->txt_s))
+		return (1);
 	return (0);
 }
 
-//function free_matrice 
 void	free_matrice(char **matrice)
 {
 	int	i;
@@ -54,39 +52,6 @@ void	free_matrice(char **matrice)
 		i++;
 	}
 	free(matrice);
-}
-
-int	mat_lenght(char **mat)
-{
-	int	i;
-
-	i = 0;
-	while (mat[i])
-		i++;
-	return (i);
-}
-
-int	myatoi(const char *str)
-{
-	int		i;
-	long	ret;
-	int		neg;
-
-	i = 0;
-	ret = 0;
-	neg = 1;
-	if (!ft_isdigit(str[i]))
-		return (-1);
-	while (ft_isdigit(str[i]))
-	{
-		ret = ret * 10 + str[i] - 48;
-		if (ret > 255)
-			return (-1);
-		i++;
-	}
-	if (str[i] && !ft_isdigit(str[i]))
-		return (-1);
-	return (ret);
 }
 
 int	cnt_comma(char *str)
@@ -104,5 +69,30 @@ int	cnt_comma(char *str)
 	}
 	if (cnt == 2)
 		return (1);
+	return (0);
+}
+
+int	set_color(char *str, uint32_t *store_color)
+{
+	char	**tmp;
+
+	tmp = ft_split(str, ',');
+	if (mat_lenght(tmp) == 3 && cnt_comma(str))
+	{
+		if (myatoi(tmp[0]) == -1 || myatoi(tmp[1]) == -1 || \
+			myatoi(tmp[2]) == -1)
+		{
+			free_matrice(tmp);
+			return (1);
+		}
+		*store_color = create_rgb(myatoi(tmp[0]), myatoi(tmp[1]), \
+		myatoi(tmp[2]));
+	}
+	else
+	{
+		free_matrice(tmp);
+		return (1);
+	}
+	free_matrice(tmp);
 	return (0);
 }

@@ -3,22 +3,21 @@
 #                                                         :::      ::::::::    #
 #    Makefile                                           :+:      :+:    :+:    #
 #                                                     +:+ +:+         +:+      #
-#    By: rarraji <rarraji@student.42.fr>            +#+  +:+       +#+         #
+#    By: eboulhou <eboulhou@student.42.fr>          +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2023/08/14 15:54:50 by rarraji           #+#    #+#              #
-#    Updated: 2023/11/07 18:56:04 by rarraji          ###   ########.fr        #
+#    Updated: 2023/11/08 08:50:03 by eboulhou         ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
-NAME	= CUB3D
+NAME	= cub3D
 	
 CC		= cc
-FSAN  	= #-g -fsanitize=address
-FLAGS	= $(FSAN) -Wall -Wextra -Werror 
+FLAGS	= -Wall -Wextra -Werror 
 RM		= rm -rf
-P1		= mehdiCub3d.c
+P1		= ray_main.c  data.c movements.c checks.c projection.c projection2.c projection3.c
 RAY	= $(addprefix ray_tex/, $(P1))
-P2		= parse.c parse1.c parse2.c parse3.c parse4.c parse5.c parse6.c parse7.c get_next_line.c get_next_line_utils.c
+P2		= parse_main.c parse1.c parse2.c parse3.c parse4.c parse5.c parse6.c parse7.c get_next_line.c get_next_line_utils.c
 PAR     = $(addprefix parse/, $(P2))
 SRC		= 	$(RAY) $(PAR)
 
@@ -30,37 +29,26 @@ FRAMEWORKS	= -framework Cocoa -framework OpenGL -framework IOKit
 GLFW       	= -Iinclude -lglfw -L"/goinfre/$(USER)/homebrew/opt/glfw/lib/"
 OBJ			= $(SRC:.c=.o)
 
-RED = \033[0;31m
-GREEN = \033[0;32m
-YELLOW = \033[0;33m
-
-
 
 %.o : %.c
 	${CC}  ${FLAGS} -c $< -o $@
 
-
 all: $(NAME)
 
-run: all
-	@./CUB3D map.ber
-
 $(NAME): $(OBJ) $(LIBFT) 
-	@printf "$(YELLOW) Compiling $(NAME)... \n"
-	@$(CC)  $(FLAGS) $(OBJ) $(LIBFT) $(MLX) $(GLFW)  -o $(NAME)  
-	@printf "$(GREEN) Executable ready.\n"
+	@$(CC)  $(FLAGS) $(OBJ) $(LIBFT) $(MLX) $(GLFW)  -o $(NAME)
 
 $(LIBFT):
 	make -C libft
 
 clean:
-	$(MAKE) fclean -C libft
+	make clean -C libft
 	$(RM) $(OBJ)
-	@printf "$(RED)    - Executable removed.\n"
 
 fclean: clean
+	make fclean -C libft
 	$(RM) $(NAME)
-	@printf "$(RED)    - Executable removed.\n"
+
 
 re: fclean all
 

@@ -10,8 +10,8 @@
 /*                                                                            */
 /* ************************************************************************** */
 
-#ifndef SO_LONG_H
-# define SO_LONG_H
+#ifndef CUB3D_H
+# define CUB3D_H
 
 # ifndef BUFFER_SIZE
 #  define BUFFER_SIZE 100
@@ -24,7 +24,7 @@
 # include <math.h>
 # include "./libft/libft.h"
 # include "MLX42/Include/MLX42.h"
-#include"stdio.h"
+# include "stdio.h"
 
 typedef struct s_param
 {
@@ -32,14 +32,6 @@ typedef struct s_param
 	char	**map;
 	char	**last_map;
 	char	**map_mehdi;
-	int		rgb_F;
-	int		rgb_C;
-	char	*NO;
-	char	*SO;
-	char	*WE;
-	char	*EA;
-	char	*F;
-	char	*C;
 	int		first_line;
 	int		last_line;
 	int		x_player;
@@ -51,13 +43,13 @@ typedef struct s_param
 
 typedef struct s_image
 {
-		void		*ptr;
-		void    	*addr;
-		int			height;
-		int     	width;
-		int			bits_per_pixel;
-		int     	line_length;
-		int     	endian;
+	void		*ptr;
+	void		*addr;
+	int			height;
+	int			width;
+	int			bits_per_pixel;
+	int			line_length;
+	int			endian;
 }		t_image;
 
 typedef struct s_vars
@@ -73,9 +65,7 @@ typedef struct s_vars
 	int			k;
 	int			l;
 	int			coin;
-	//lenk->height_of_map
 	int			lenk;
-	//lenk->width_of_map
 	int			lenl;
 	int			fake_coin;
 	int			les_pas;
@@ -85,7 +75,6 @@ typedef struct s_vars
 	void		*bacg;
 	void		*makla;
 	float		angle;
-	/// ////////
 	void		*img;
 	char		*addr;
 	int			bits_per_pixel;
@@ -93,15 +82,6 @@ typedef struct s_vars
 	int			endian;
 
 }				t_vars;
-
-
-# include <unistd.h>
-# include <stdlib.h>
-# include <fcntl.h>
-# include <math.h>
-# include "MLX42/Include/MLX42.h"
-# include "libft/libft.h"
-# include "stdio.h"
 
 enum e_direction
 {
@@ -115,12 +95,12 @@ char	*get_next_line(int fd);
 
 typedef struct s_check
 {
-	int i;
-	char **spl;
-	char *str;
-	int check;
-	int err;
-	int tmp;
+	int		i;
+	char	**spl;
+	char	*str;
+	int		check;
+	int		err;
+	int		tmp;
 }t_check;
 
 typedef struct s_wall
@@ -201,49 +181,37 @@ typedef struct s_draw
 	int		color;
 }t_draw;
 
-
-// int		ft_strlen(char *s);
-// char	*ft_strjoin(char *s1, char *s2);
-char	*read_line(int fd, char *str);
-char	*p1_line(char *str);
-char	*last_line(char *str);
-int		ft_strchr1(char *s, char c);
-// char	*ft_strchr1(char *s, int c);
-// char	*ft_substr(char *s, int start, int len);
-// void	print_map(t_data	img, t_vars *param);
-void 	key_hook(t_vars *pr); 
-int		ft_check_par(t_vars *param);
-// void len_mapp(t_data *data);
-// int		check_jnob(t_vars *param);
-int		check_len(t_vars *param);
-void	ft_fack_map(t_vars *param, char *av);
-void	check_path(t_vars *param);
-void	ft_cntcoin(t_vars *param);
-// int		ft_path(int *i, int k, int l, t_vars *param);
-// int		check_mov(t_vars *param, int k, int l, int keycode);
-int		ft_destroy(t_vars *param);
-void	check_exect_player_exit(char c, int cnt, t_vars *param);
-void	ft_chrp(t_vars *param);
-int		check_av(char *av);
-// void lire_map(t_data *data, char *av);
-int		ft_defpar(char c, t_vars *param);
-void	ft_put(t_vars *param, void *img);
-void	ft_init(t_vars *pr);
-// void	free_all_map(t_vars *param);
-
-
-
-
-
-
-
-int DDA(t_vars *pr ,int X0, int Y0, int X1, int Y1);
-int	print_map(t_vars *param);
-void ft_draw_player(t_vars *param);
-int	check_mov(t_vars *param, int k, int l);
-void draw_3d(int dst, int x , t_vars *param);
-// void ft_draw_pix(t_data	img, t_vars *param, int c);
-// void	my_mlx_pixel_put(t_data *data, int x, int y, int color);
+//raycasting functions****************************************************
+//data
+void	initialize_data(t_data *data, t_param *params);
+void	free_data(t_data *data, int exit_code);
+void	normalize_angle(float *angle);
+void	free_mat(char **mat);
+void	vue_angle(t_data *param);
+// movements 
+void	move_player_left_right(t_data *pr);
+void	move_player_forward_backward(t_data *pr);
+void	rotate_player(t_data *pr);
+void	mouvements(t_data *pr);
+int		check_move(t_data *pr, float yl, float xl);
+//checks
+int		check_wall_at(t_data *param, double k, double l);
+//projection 1
+void	wall_projection(t_data *data);
+void	horizontal(t_data *data, double ray_angle, t_wall *wall);
+void	verticall(t_data *data, double ray_angle, t_wall *wall);
+void	set_distance(t_data *data, t_wall *wall);
+//projection 2
+void	draw_wall_ray(t_draw *dr, t_data *data, t_ray *ray, mlx_texture_t *tex);
+void	draw_strip(t_data *data, t_ray *ray);
+int		project_horz_ray(t_data *data, t_wall *wall, t_ray *ray);
+int		project_vert_ray(t_data *data, t_wall *wall, t_ray *ray);
+int		get_color( mlx_texture_t *tex, int x, int y);
+//projection 3
+void	set_vert_intersections(t_data *data, t_ray *ray, double ray_angle);
+void	set_ray_direction(t_ray *ray, double ray_angle);
+void	set_horz_intersections(t_data *data, t_ray *ray, double ray_angle);
+//raycasting functions****************************************************
 
 //|------------------------PARCING---------------------------------|
 

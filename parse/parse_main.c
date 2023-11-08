@@ -1,12 +1,12 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   parse.c                                            :+:      :+:    :+:   */
+/*   parse_main.c                                       :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: rarraji <rarraji@student.42.fr>            +#+  +:+       +#+        */
+/*   By: eboulhou <eboulhou@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/11/07 18:54:28 by rarraji           #+#    #+#             */
-/*   Updated: 2023/11/07 20:51:23 by rarraji          ###   ########.fr       */
+/*   Updated: 2023/11/08 08:44:48 by eboulhou         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -68,7 +68,34 @@ int	parse_color(t_param *param, t_data *data)
 	return (0);
 }
 
-int	main1(int ac, char **av)
+int	main_2(t_param *param, t_data	*data)
+{
+	if (parse_color(param, data))
+	{
+		free_matrice(param->map);
+		free_matrice(param->map_trim);
+		return (1);
+	}
+	ft_cnt_param(param);
+	if (check_first_last_line(param) || check_jnob(param) || \
+		ft_search_player(param) != 1 || ft_check_space(param))
+	{
+		free_matrice(param->map_trim);
+		free_matrice(param->map);
+		free_matrice(param->last_map);
+		free_tdata(data);
+		ft_putstr_fd("Error\nmap_error\n", 2);
+		return (1);
+	}
+	map_mehdi(param);
+	free_matrice(param->map);
+	free_matrice(param->map_trim);
+	free_matrice(param->last_map);
+	display(param, data);
+	return (0);
+}
+
+int	main(int ac, char **av)
 {
 	t_data	data;
 	t_param	param;
@@ -84,40 +111,11 @@ int	main1(int ac, char **av)
 		return (0);
 	if (read_file(&param, av[1]) == NULL)
 	{
-		free_all_map(param.map);
-		free_all_map(param.map_trim);
-		return (1);
-	}
-	if (parse_color(&param, &data))
-	{
 		free_matrice(param.map);
 		free_matrice(param.map_trim);
 		return (1);
 	}
-	ft_cnt_param(&param);
-	if (check_first_last_line(&param) || check_jnob(&param) || \
-		ft_search_player(&param) != 1 || ft_check_space(&param))
-	{
-		free_matrice(param.map_trim);
-		free_matrice(param.map);
-		free_matrice(param.last_map);
-		free_tdata(&data);
-		ft_putstr_fd("Error\nmap_error\n", 2);
-		return (0);
-	}
-	map_mehdi(&param);
-	free_all_map(param.map);
-	free_all_map(param.map_trim);
-	free_all_map(param.last_map);
-	free(param.C);
-	free(param.F);
-	display(&param, &data);
-	return (0);
-}
-
-int main(int av, char **ac)
-{
-	main1(av, ac);
-	system("leaks CUB3D");
+	if (main_2(&param, &data) == 1)
+		return (1);
 	return (0);
 }

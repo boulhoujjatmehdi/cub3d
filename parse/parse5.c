@@ -6,7 +6,7 @@
 /*   By: rarraji <rarraji@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/11/07 18:43:35 by rarraji           #+#    #+#             */
-/*   Updated: 2023/11/07 18:59:58 by rarraji          ###   ########.fr       */
+/*   Updated: 2023/11/08 08:17:38 by rarraji          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -45,59 +45,14 @@ int	create_rgb(int r, int g, int b)
 	return (r << 24 | g << 16 | b << 8 | 255);
 }
 
-void	exist_file(char *av)
-{
-	int	fd;
-
-	fd = open(av, O_RDONLY);
-	if (fd == -1)
-	{
-		printf("Error\nfile not exist\n");
-		exit(1);
-	}
-}
-
-int	check_av(char *av)
-{
-	int		i;
-	int		j;
-	char	*s;
-
-	j = 0;
-	i = 0;
-	s = ".ber";
-	exist_file(av);
-	while (av[i])
-		i++;
-	i = i - 4;
-	while (av[i])
-	{
-		if (s[j] == av[i])
-		{
-			j++;
-			i++;
-		}
-		else
-		{
-			ft_putstr_fd("Error\n", 2);
-			return (1);
-		}
-	}
-	return (0);
-}
-
-void	free_all_map(char **vars)
+int	ft_strlen2(char *s)
 {
 	int	i;
 
 	i = 0;
-	if (!vars)
-		return ;
-	while (vars && vars[i])
-	{
-		free(vars[i]);
-		vars[i] = NULL;
+	if (!s)
+		return (0);
+	while (s[i] != ' ' && s[i] != '\0')
 		i++;
-	}
-	free(vars);
+	return (i);
 }

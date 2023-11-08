@@ -6,29 +6,11 @@
 /*   By: rarraji <rarraji@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/11/07 18:42:36 by rarraji           #+#    #+#             */
-/*   Updated: 2023/11/07 18:59:45 by rarraji          ###   ########.fr       */
+/*   Updated: 2023/11/08 08:15:55 by rarraji          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "../cub3d.h"
-
-int	chec_verg(char *str)
-{
-	int	i;
-	int	cnt;
-
-	cnt = 0;
-	i = 0;
-	while (str[i])
-	{
-		if (str[i] == ',')
-			cnt++;
-		i++;
-	}
-	if (cnt != 2)
-		return (1);
-	return (0);
-}
 
 int	ft_cnt(char **str)
 {
@@ -82,23 +64,46 @@ int	check_jnob(t_param *vars)
 	return (0);
 }
 
-void	ft_change(t_param *vars)
+int	ft_search_player_2(t_param *vars, int y, int i, int cnt)
 {
-	int	i;
-	int	j;
+	int	x;
 
-	i = 0;
-	j = 0;
-	while (vars->last_map[i])
+	while (vars->map[y])
 	{
-		j = 0;
-		while (vars->last_map[i][j])
+		vars->last_map[i] = ft_substr(vars->map[y], 0, ft_strlen(vars->map[y]));
+		x = 0;
+		while (vars->last_map[i][x])
 		{
-			if (ft_strchr("0WSNE", vars->last_map[i][j]) != NULL)
-				vars->map_mehdi[i][j] = vars->last_map[i][j];
-			j++;
+			if (ft_strchr("NSEW 10\n", vars->last_map[i][x]) == NULL)
+				return (1);
+			else if (ft_strchr("NSEW", vars->last_map[i][x]) != NULL)
+			{
+				vars->x_player = x;
+				vars->y_player = i;
+				cnt++;
+			}
+			x++;
 		}
+		y++;
 		i++;
 	}
-	vars->height_map = i;
+	vars->last_map[i] = 0;
+	vars->last_line = i - 1;
+	check_long_line(vars);
+	return (cnt);
+}
+
+int	ft_search_player(t_param *vars)
+{
+	int	y;
+	int	cnt;
+	int	i;
+
+	cnt = 0;
+	i = 0;
+	y = vars->first_line;
+	vars->last_map = (char **)ft_calloc(sizeof(char *), \
+		(vars->last_line - vars->first_line + 2));
+	cnt = ft_search_player_2(vars, y, i, cnt);
+	return (cnt);
 }
